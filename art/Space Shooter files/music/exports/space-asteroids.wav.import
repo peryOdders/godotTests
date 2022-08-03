@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/space-asteroids.wav-54c09bb0b501e27330dc1c4d764f4965.sample"
+
+[deps]
+
+source_file="res://art/Space Shooter files/music/exports/space-asteroids.wav"
+dest_files=[ "res://.import/space-asteroids.wav-54c09bb0b501e27330dc1c4d764f4965.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

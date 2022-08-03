@@ -1,0 +1,149 @@
+[gd_scene load_steps=18 format=2]
+
+[ext_resource path="res://fonts/PressStart2P-vaV7.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://HelpText.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scrips/ScreenControl.gd" type="Script" id=3]
+[ext_resource path="res://art/spaceBackround/parallax-space-stars.png" type="Texture" id=5]
+[ext_resource path="res://art/spaceBackround/parallax-space-backgound.png" type="Texture" id=6]
+[ext_resource path="res://art/spaceBackround/parallax-space-far-planets.png" type="Texture" id=7]
+[ext_resource path="res://art/spaceBackround/parallax-space-big-planet.png" type="Texture" id=8]
+[ext_resource path="res://art/spaceBackround/parallax-space-ring-planet.png" type="Texture" id=9]
+[ext_resource path="res://Player.tscn" type="PackedScene" id=10]
+[ext_resource path="res://art/Space Shooter files/music/exports/space-asteroids.ogg" type="AudioStream" id=11]
+[ext_resource path="res://art/Space Shooter files/Sound FX/hit.wav" type="AudioStream" id=12]
+[ext_resource path="res://art/Sideview Sci-Fi - Patreon Collection/Environments/another-world/PNG/another-world-PREVIEW.png" type="Texture" id=13]
+[ext_resource path="res://The-Mill-by-Oliver-Lindau_4K-1536x960.png" type="Texture" id=14]
+[ext_resource path="res://art/Sideview Sci-Fi - Patreon Collection/Environments/bulkhead-walls/PNG/preview-bulkhead-walls-v2.png" type="Texture" id=15]
+
+[sub_resource type="DynamicFont" id=1]
+size = 8
+font_data = ExtResource( 1 )
+
+[sub_resource type="Animation" id=2]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:custom_colors/font_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 0, 0.133333, 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=3]
+resource_name = "StartText"
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:custom_colors/font_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2, 0.5, 0.8, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 0, 0.133333, 1, 1 ), Color( 0.0352941, 1, 0, 1 ), Color( 1, 0, 0, 1 ), Color( 1, 0.933333, 0, 1 ), Color( 0, 0.133333, 1, 1 ) ]
+}
+
+[node name="Node2D" type="Node2D"]
+
+[node name="The-Mill-by-Oliver-Lindau4k-1536X960" type="Sprite" parent="."]
+visible = false
+position = Vector2( 154, 97 )
+texture = ExtResource( 14 )
+
+[node name="Background" type="Node" parent="."]
+
+[node name="bkg_0" type="Sprite" parent="Background"]
+position = Vector2( 136, 80 )
+z_index = -1
+texture = ExtResource( 6 )
+
+[node name="bkg_1" type="Sprite" parent="Background"]
+position = Vector2( 142, 81 )
+z_index = -1
+texture = ExtResource( 5 )
+
+[node name="bkg_2" type="Sprite" parent="Background"]
+position = Vector2( 138, 82 )
+z_index = -1
+texture = ExtResource( 7 )
+
+[node name="bkg_3" type="Sprite" parent="Background"]
+position = Vector2( 339, 138 )
+z_index = -1
+texture = ExtResource( 9 )
+centered = false
+
+[node name="bkg_4" type="Sprite" parent="Background"]
+position = Vector2( 39, 172 )
+z_index = -1
+texture = ExtResource( 8 )
+
+[node name="Another-world-Preview" type="Sprite" parent="Background"]
+visible = false
+position = Vector2( 378, 129 )
+texture = ExtResource( 13 )
+
+[node name="Preview-bulkhead-walls-v2" type="Sprite" parent="Background"]
+visible = false
+texture = ExtResource( 15 )
+centered = false
+
+[node name="ScreenControl" type="Node" parent="."]
+script = ExtResource( 3 )
+
+[node name="HelpLabel" parent="ScreenControl" instance=ExtResource( 2 )]
+margin_left = 3.0
+margin_top = 3.0
+margin_right = 279.0
+margin_bottom = 41.0
+custom_fonts/font = SubResource( 1 )
+text = "Press F1 to Toggle Help
+Press F11 to Toggle Full Screen
+Press ESC to Exit"
+
+[node name="Start" parent="ScreenControl" instance=ExtResource( 2 )]
+margin_left = 45.0
+margin_top = 170.0
+margin_right = 365.0
+margin_bottom = 208.0
+rect_pivot_offset = Vector2( 0.5, 0.5 )
+custom_colors/font_color = Color( 0, 0.133333, 1, 1 )
+custom_fonts/font = SubResource( 1 )
+text = "Press Space to Start"
+align = 1
+valign = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ScreenControl/Start"]
+playback_speed = 3.0
+anims/RESET = SubResource( 2 )
+anims/StartText = SubResource( 3 )
+
+[node name="Title" parent="ScreenControl/Start" instance=ExtResource( 2 )]
+margin_left = -136.0
+margin_top = -170.0
+margin_right = 153.0
+margin_bottom = -131.0
+rect_scale = Vector2( 2, 2 )
+custom_fonts/font = SubResource( 1 )
+text = "WEA en el ESPASIO"
+align = 1
+valign = 1
+
+[node name="AudioStartGame" type="AudioStreamPlayer" parent="ScreenControl"]
+stream = ExtResource( 12 )
+
+[node name="Player" parent="." instance=ExtResource( 10 )]
+position = Vector2( 90, -109 )
+
+[node name="Music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 11 )
+volume_db = -10.0
+
+[connection signal="game_Start" from="ScreenControl" to="Player" method="_on_ScreenControl_game_Start"]
