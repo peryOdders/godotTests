@@ -53,8 +53,7 @@ tracks/0/keys = {
 [node name="Node2D" type="Node2D"]
 
 [node name="The-Mill-by-Oliver-Lindau4k-1536X960" type="Sprite" parent="."]
-visible = false
-position = Vector2( 154, 97 )
+position = Vector2( 412, 41 )
 texture = ExtResource( 14 )
 
 [node name="Background" type="Node" parent="."]
@@ -85,15 +84,15 @@ position = Vector2( 39, 172 )
 z_index = -1
 texture = ExtResource( 8 )
 
+[node name="Preview-bulkhead-walls-v2" type="Sprite" parent="Background"]
+z_index = -2
+texture = ExtResource( 15 )
+centered = false
+
 [node name="Another-world-Preview" type="Sprite" parent="Background"]
 visible = false
 position = Vector2( 378, 129 )
 texture = ExtResource( 13 )
-
-[node name="Preview-bulkhead-walls-v2" type="Sprite" parent="Background"]
-visible = false
-texture = ExtResource( 15 )
-centered = false
 
 [node name="ScreenControl" type="Node" parent="."]
 script = ExtResource( 3 )

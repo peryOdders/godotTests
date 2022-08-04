@@ -46,7 +46,8 @@ func shot():
 	shoting = true
 	$AudioShot.play()
 	var bullet = bullet_path.instance()
-	get_tree().get_root().add_child(bullet)
+	#get_tree().get_root().add_child(bullet)
+	get_parent().add_child(bullet)
 	bullet.position = position + Vector2(0,-15)
 
 	yield(get_tree().create_timer(0.5), "timeout")

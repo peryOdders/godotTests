@@ -1,6 +1,7 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=2]
 
 [sub_resource type="Shader" id=1]
+resource_local_to_scene = true
 code = "/*
 	This shader is based in:
 	Libretro's crt-geom.glsl
@@ -40,37 +41,63 @@ uniform float overscan_x: hint_range(-125.0, 125.0, 1.0) = 100.0;
 uniform float overscan_y: hint_range(-125.0, 125.0, 1.0) = 100.0;
 
 
-// CRTGeom Target Gamma
-uniform float CRTgamma: hint_range(0.1, 5.0, 0.1) = 2.4; // hola
-
-// CRTGeom Monitor Gamma
-uniform float monitorgamma: hint_range(0.1, 5.0, 0.1) = 2.2;
 
 
 
 
+// hardScan
+uniform float hardScan: hint_range(-20.0, 0.0, 1.0) = -8.0;
+
+// hardPix
+uniform float hardPix: hint_range(-20.0, 0.0, 1.0) = -3.0;
+
+// warpX
+uniform float warpX: hint_range(0.0, 0.125, 0.01) = 0.031;
+
+// warpY
+uniform float warpY: hint_range(0.0, 0.125, 0.01) = 0.041;
+
+// maskDark
+uniform float maskDark: hint_range(0.0, 2.0, 0.1) = 0.5;
+
+// maskLight
+uniform float maskLight: hint_range(0.0, 2.0, 0.1) = 1.5;
+
+// scaleInLinearGamma
+uniform float scaleInLinearGamma: hint_range(0.0, 1.0, 1.0) = 1.0;
+
+// shadowMask
+uniform float shadowMask: hint_range(0.0, 4.0, 1.0) = 3.0;
+
+// brightness boost
+uniform float brightBoost: hint_range(0.0, 2.0, 0.05) = 1.0;
+
+// bloom-x soft
+uniform float hardBloomPix: hint_range(-2.0, -0.5, 0.1) = -1.5;
+
+// bloom-y soft
+uniform float hardBloomScan: hint_range(-4.0, -1.0, 0.1) = -2.0;
+
+// bloom ammount
+uniform float bloomAmount: hint_range(0.0, 1.0, 0.05) = 0.15;
+
+// filter kernel shape
+uniform float shape: hint_range(0.0, 10.0, 0.05) = 2.0;
 
 
-// CRTGeom Dot Mask Toggle
-uniform float DOTMASK: hint_range(0.0, 0.3, 0.3) = 0.3;
 
-// CRTGeom Sharpness
-uniform float SHARPER: hint_range(1.0, 3.0, 1.0) = 1.0;
 
-// CRTGeom Scanline Weight
-uniform float scanline_weight: hint_range(0.1, 0.5, 0.05) = 0.3;
 
-// CRTGeom Luminance
-uniform float lum: hint_range(0.0, 0.1, 0.01) = 0.0;
 
-// CRTGeom Interlacing Simulation
-uniform float interlace_detect: hint_range(0.0, 1.0, 1.0) = 1.0;
+
 
 uniform vec2 OutputSize;
 uniform vec2 TextureSize;
 uniform vec2 InputSize;
-uniform int FrameCount;
-//uniform int FrameDirection; // not used
+
+
+uniform vec2 Offset;
+
 
 varying vec2 overscan;
 varying vec2 aspect;
@@ -80,6 +107,15 @@ varying vec2 cosangle;
 varying vec2 one;
 varying float mod_factor;
 varying vec2 ilfac;
+
+
+
+
+
+varying vec2 convolution[4];
+
+
+
 
 //Cuvature functions
 float intersect(vec2 xy) {
@@ -126,44 +162,15 @@ vec3 maxscale() {
 }
 
 
+
 void vertex() {
-	// START of parameters
-	
-	// gamma of simulated CRT
-	//CRTgamma = 1.8;
-	
-	// gamma of display monitor (typically 2.2 is correct)
-	//monitorgamma = 2.2;
-	
-	// overscan (e.g. 1.02 for 2% overscan)
+
 	overscan = vec2(1.00,1.00);
+
+	aspect = vec2(1.0, 0.5625);
 	
-	// aspect ratio
-	aspect = vec2(1.0, 0.75);
-	
-	// lengths are measured in units of (approximately) the width
-	// of the monitor simulated distance from viewer to monitor
-	//d = 2.0;
-	
-	// radius of curvature
-	//R = 1.5;
-	
-	// tilt angle in radians
-	// (behavior might be a bit wrong if both components are
-	// nonzero)
 	const vec2 angle = vec2(0.0, 0.0);
 	
-	// size of curved corners
-	//cornersize = 0.03;
-	
-	// border smoothness parameter
-	// decrease if borders are too aliased
-	//cornersmooth = 1000.0;
-	
-	// END of parameters
-	
-	// Precalculate a bunch of useful values we'll need in the fragment
-	// shader.
 	sinangle = sin(vec2(x_tilt, y_tilt)) + vec2(0.001);//sin(vec2(max(abs(x_tilt), 1e-3), max(abs(y_tilt), 1e-3)));
 	cosangle = cos(vec2(x_tilt, y_tilt)) + vec2(0.001);//cos(vec2(max(abs(x_tilt), 1e-3), max(abs(y_tilt), 1e-3)));
 	stretch = maxscale();
@@ -171,43 +178,22 @@ void vertex() {
 	ilfac = vec2(1.0,clamp(floor(InputSize.y/200.0), 1.0, 2.0));
 	
 	// The size of one texel, in texture-coordinates.
-	vec2 sharpTextureSize = vec2(SHARPER * TextureSize.x, TextureSize.y);
+	vec2 sharpTextureSize = vec2(1.0 * TextureSize.x, TextureSize.y);
 	one = ilfac / sharpTextureSize;
 	
 	// Resulting X pixel-coordinate of the pixel we're drawing.
 	mod_factor = UV.x * TextureSize.x * OutputSize.x / InputSize.x;
+	
+
+	convolution[0] = UV + one * vec2(Offset.x+0.5,Offset.y+0.5) ;//top right
+	convolution[1] = UV + one * vec2(-Offset.x-0.5,Offset.y-0.5) ;//bottom left
+	convolution[2] = UV + one * vec2(-Offset.x-0.5,Offset.y+0.5) ;//top left
+	convolution[3] = UV + one * vec2(Offset.x+0.5,-Offset.y-0.5) ;//bottom right
 }
 
-/*
-NOTE: Godot shading language does not support \"\"#define\", so these ones
-must be commented/uncommented in the corresponding \"#ifdef\"/\"#ifNdef\" sections.
-*/
-
-// Enable interpolation in linear gamma (disable for gain speed).
-// Default in original GLSL source: enabled
-//#define LINEAR_PROCESSING
-
-// Enable 3x oversampling of the beam profile
-// Default in original GLSL source: enabled
-//#define OVERSAMPLE
-
-// Use the older, purely gaussian beam profile
-// Default in original GLSL source: disabled
-//#define USEGAUSSIAN
 
 const float PI = 3.141592653589;
 
-/*
-NOTE: Godot shading language does not support \"\"#define\", so \"TEX2D(c)\"
-has been inlined and enclosed in corresponding \"\"#ifdef LINEAR_PROCESSING\"
-blocks.
-*/
-
-//#ifdef LINEAR_PROCESSING
-//#define TEX2D(c) pow(COMPAT_TEXTURE(Texture, (c)), vec4(CRTgamma))
-//#else
-//#define TEX2D(c) COMPAT_TEXTURE(Texture, (c))
-//#endif
 
 vec2 transform(vec2 coord) {
 	coord *= TextureSize / InputSize;
@@ -225,143 +211,256 @@ float corner(vec2 coord) {
 	return clamp((cdist.x-dist)*cornersmooth,0.0, 1.0);
 }
 
-// Calculate the influence of a scanline on the current pixel.
-//
-// 'distance' is the distance in texture coordinates from the current
-// pixel to the scanline in question.
-// 'color' is the colour of the scanline at the horizontal location of
-// the current pixel.
-vec4 scanlineWeights(float distance, vec4 color) {
-	// \"wid\" controls the width of the scanline beam, for each RGB
-	// channel The \"weights\" lines basically specify the formula
-	// that gives you the profile of the beam, i.e. the intensity as
-	// a function of distance from the vertical center of the
-	// scanline. In this case, it is gaussian if width=2, and
-	// becomes nongaussian for larger widths. Ideally this should
-	// be normalized so that the integral across the beam is
-	// independent of its width. That is, for a narrower beam
-	// \"weights\" should have a higher peak at the center of the
-	// scanline than for a wider beam.
 
-	//#ifdef USEGAUSSIAN
-	//vec4 wid = 0.3 + 0.1 * pow(color, vec4(3.0));
-	//vec4 weights = vec4(distance / wid);
-	//return (lum + 0.4) * exp(-weights * weights) / wid;
-	//#else
-	vec4 wid = 2.0 + 2.0 * pow(color, vec4(4.0));
-	vec4 weights = vec4(distance / scanline_weight);
-	return (lum + 1.4) * exp(-pow(weights * inversesqrt(0.5 * wid), wid)) / (0.6 + 0.2 * wid);
-	//#endiF
+
+
+
+
+
+
+
+
+
+float ToLinear1(float c) {
+    if (scaleInLinearGamma == 0.) 
+        return c;
+    
+    return(c<=0.04045) ? c/12.92 : pow((c + 0.055)/1.055, 2.4);
 }
+
+vec3 ToLinear(vec3 c) {
+    if (scaleInLinearGamma==0.) 
+        return c;
+    
+    return vec3(ToLinear1(c.r), ToLinear1(c.g), ToLinear1(c.b));
+}
+
+// Linear to sRGB.
+// Assuming using sRGB typed textures this should not be needed.
+float ToSrgb1(float c) {
+    if (scaleInLinearGamma == 0.) 
+        return c;
+    
+    return(c<0.0031308 ? c*12.92 : 1.055*pow(c, 0.41666) - 0.055);
+}
+
+vec3 ToSrgb(vec3 c) {
+    if (scaleInLinearGamma == 0.) 
+        return c;
+    
+    return vec3(ToSrgb1(c.r), ToSrgb1(c.g), ToSrgb1(c.b));
+}
+
+//#endif
+
+// Nearest emulated sample given floating point position and texel offset.
+// Also zero's off screen.
+vec3 Fetch(sampler2D _TEXTURE, vec2 pos,vec2 off) {
+	//pos=(floor(pos*SourceSize.xy+off)+vec2(0.5,0.5))/SourceSize.xy;
+	pos=(floor(pos*vec4(TextureSize, 1.0 / TextureSize).xy+off)+vec2(0.5,0.5))/vec4(TextureSize, 1.0 / TextureSize).xy;
+	
+	//#ifdef SIMPLE_LINEAR_GAMMA
+	//return ToLinear(brightBoost * pow(texture(_TEXTURE,pos.xy).rgb, vec3(2.2)));
+	//#else
+	return ToLinear(brightBoost * texture(_TEXTURE,pos.xy).rgb);
+	//#endif
+}
+
+// Distance in emulated pixels to nearest texel.
+vec2 Dist(vec2 pos) {
+	//pos = pos*SourceSize.xy;
+	pos = pos*vec4(TextureSize, 1.0 / TextureSize).xy;
+	
+	return -((pos - floor(pos)) - vec2(0.5));
+}
+
+// 1D Gaussian.
+float Gaus(float pos, float scale) {
+	return exp2(scale*pow(abs(pos), shape));
+}
+
+// 3-tap Gaussian filter along horz line.
+vec3 Horz3(sampler2D _TEXTURE, vec2 pos, float off) {
+	vec3 b    = Fetch(_TEXTURE, pos, vec2(-1.0, off));
+	vec3 c    = Fetch(_TEXTURE, pos, vec2( 0.0, off));
+	vec3 d    = Fetch(_TEXTURE, pos, vec2( 1.0, off));
+	float dst = Dist(pos).x;
+	
+	// Convert distance to weight.
+	float scale = hardPix;
+	float wb = Gaus(dst-1.0,scale);
+	float wc = Gaus(dst+0.0,scale);
+	float wd = Gaus(dst+1.0,scale);
+	
+	// Return filtered sample.
+	return (b*wb+c*wc+d*wd)/(wb+wc+wd);
+}
+
+// 5-tap Gaussian filter along horz line.
+vec3 Horz5(sampler2D _TEXTURE, vec2 pos,float off) {
+	vec3 a = Fetch(_TEXTURE, pos,vec2(-2.0, off));
+	vec3 b = Fetch(_TEXTURE, pos,vec2(-1.0, off));
+	vec3 c = Fetch(_TEXTURE, pos,vec2( 0.0, off));
+	vec3 d = Fetch(_TEXTURE, pos,vec2( 1.0, off));
+	vec3 e = Fetch(_TEXTURE, pos,vec2( 2.0, off));
+	
+	float dst = Dist(pos).x;
+	// Convert distance to weight.
+	float scale = hardPix;
+	float wa = Gaus(dst - 2.0, scale);
+	float wb = Gaus(dst - 1.0, scale);
+	float wc = Gaus(dst + 0.0, scale);
+	float wd = Gaus(dst + 1.0, scale);
+	float we = Gaus(dst + 2.0, scale);
+	
+	// Return filtered sample.
+	return (a*wa+b*wb+c*wc+d*wd+e*we)/(wa+wb+wc+wd+we);
+}
+
+// 7-tap Gaussian filter along horz line.
+vec3 Horz7(sampler2D _TEXTURE, vec2 pos,float off) {
+	vec3 a = Fetch(_TEXTURE, pos, vec2(-3.0, off));
+	vec3 b = Fetch(_TEXTURE, pos, vec2(-2.0, off));
+	vec3 c = Fetch(_TEXTURE, pos, vec2(-1.0, off));
+	vec3 d = Fetch(_TEXTURE, pos, vec2( 0.0, off));
+	vec3 e = Fetch(_TEXTURE, pos, vec2( 1.0, off));
+	vec3 f = Fetch(_TEXTURE, pos, vec2( 2.0, off));
+	vec3 g = Fetch(_TEXTURE, pos, vec2( 3.0, off));
+	
+	float dst = Dist(pos).x;
+	// Convert distance to weight.
+	float scale = hardBloomPix;
+	float wa = Gaus(dst - 3.0, scale);
+	float wb = Gaus(dst - 2.0, scale);
+	float wc = Gaus(dst - 1.0, scale);
+	float wd = Gaus(dst + 0.0, scale);
+	float we = Gaus(dst + 1.0, scale);
+	float wf = Gaus(dst + 2.0, scale);
+	float wg = Gaus(dst + 3.0, scale);
+	
+	// Return filtered sample.
+return (a*wa+b*wb+c*wc+d*wd+e*we+f*wf+g*wg)/(wa+wb+wc+wd+we+wf+wg);
+}
+
+// Return scanline weight.
+float Scan(vec2 pos, float off) {
+	float dst = Dist(pos).y;
+	
+	return Gaus(dst + off, hardScan);
+}
+  
+// Return scanline weight for bloom.
+float BloomScan(vec2 pos, float off) {
+	float dst = Dist(pos).y;
+	
+	return Gaus(dst + off, hardBloomScan);
+}
+
+// Allow nearest three lines to effect pixel.
+vec3 Tri(sampler2D _TEXTURE, vec2 pos) {
+	vec3 a = Horz3(_TEXTURE, pos,-1.0);
+	vec3 b = Horz5(_TEXTURE, pos, 0.0);
+	vec3 c = Horz3(_TEXTURE, pos, 1.0);
+	
+	float wa = Scan(pos,-1.0); 
+	float wb = Scan(pos, 0.0);
+	float wc = Scan(pos, 1.0);
+	
+	return a*wa + b*wb + c*wc;
+}
+  
+// Small bloom.
+vec3 Bloom(sampler2D _TEXTURE, vec2 pos) {
+	vec3 a = Horz5(_TEXTURE, pos,-2.0);
+	vec3 b = Horz7(_TEXTURE, pos,-1.0);
+	vec3 c = Horz7(_TEXTURE, pos, 0.0);
+	vec3 d = Horz7(_TEXTURE, pos, 1.0);
+	vec3 e = Horz5(_TEXTURE, pos, 2.0);
+	
+	float wa = BloomScan(pos,-2.0);
+	float wb = BloomScan(pos,-1.0); 
+	float wc = BloomScan(pos, 0.0);
+	float wd = BloomScan(pos, 1.0);
+	float we = BloomScan(pos, 2.0);
+	
+	return a*wa+b*wb+c*wc+d*wd+e*we;
+}
+
+// Shadow mask.
+vec3 Mask(vec2 pos) {
+	vec3 mask = vec3(maskDark, maskDark, maskDark);
+	
+	// Very compressed TV style shadow mask.
+	if (shadowMask == 1.0) 
+	{
+	    float line = maskLight;
+	    float odd = 0.0;
+	    
+	    if (fract(pos.x*0.166666666) < 0.5) odd = 1.0;
+	    if (fract((pos.y + odd) * 0.5) < 0.5) line = maskDark;  
+	    
+	    pos.x = fract(pos.x*0.333333333);
+	
+	    if      (pos.x < 0.333) mask.r = maskLight;
+	    else if (pos.x < 0.666) mask.g = maskLight;
+	    else                    mask.b = maskLight;
+	    mask*=line;  
+	} 
+	
+	// Aperture-grille.
+	else if (shadowMask == 2.0) 
+	{
+	    pos.x = fract(pos.x*0.333333333);
+	
+	    if      (pos.x < 0.333) mask.r = maskLight;
+	    else if (pos.x < 0.666) mask.g = maskLight;
+	    else                    mask.b = maskLight;
+	} 
+	
+	// Stretched VGA style shadow mask (same as prior shaders).
+	else if (shadowMask == 3.0) 
+	{
+	    pos.x += pos.y*3.0;
+	    pos.x  = fract(pos.x*0.166666666);
+	
+	    if      (pos.x < 0.333) mask.r = maskLight;
+	    else if (pos.x < 0.666) mask.g = maskLight;
+	    else                    mask.b = maskLight;
+	}
+	
+	// VGA style shadow mask.
+	else if (shadowMask == 4.0) 
+	{
+	    pos.xy  = floor(pos.xy*vec2(1.0, 0.5));
+	    pos.x  += pos.y*3.0;
+	    pos.x   = fract(pos.x*0.166666666);
+	
+	    if      (pos.x < 0.333) mask.r = maskLight;
+	    else if (pos.x < 0.666) mask.g = maskLight;
+	    else                    mask.b = maskLight;
+	}
+	
+	return mask;
+}
+
+
 
 
 void fragment() {
 
 	vec2 xy = useCurvature ? transform(UV.xy) : UV.xy;
-	float cval = corner(xy);
+	float cval = useCurvature ? corner(xy) : 1.0;
 	
 	
-	// Of all the pixels that are mapped onto the texel we are
-	// currently rendering, which pixel are we currently rendering?
-	vec2 ilvec = vec2(0.0,ilfac.y * interlace_detect > 1.5 ? mod(float(FrameCount),2.0) : 0.0);
-	vec2 ratio_scale = (xy * TextureSize - vec2(0.5) + ilvec)/ilfac;
+	vec3 outColor = Tri(TEXTURE, xy);
+	vec3 bloom = Bloom(TEXTURE, xy);
+	outColor.rgb += bloom * bloomAmount;
 	
-	//#ifdef OVERSAMPLE
-	float filter_ = InputSize.y/OutputSize.y;//fwidth(ratio_scale.y);
-	//#endif
+	if (shadowMask > 0.0)
+	    outColor.rgb *= Mask(FRAGCOORD.xy * 1.000001);
 	
-	vec2 uv_ratio = fract(ratio_scale);
-	
-	// Snap to the center of the underlying texel.
-	xy = (floor(ratio_scale)*ilfac + vec2(0.5) - ilvec) / TextureSize;
-	
-	// Calculate Lanczos scaling coefficients describing the effect
-	// of various neighbour texels in a scanline on the current
-	// pixel.
-	vec4 coeffs = PI * vec4(1.0 + uv_ratio.x, uv_ratio.x, 1.0 - uv_ratio.x, 2.0 - uv_ratio.x);
-	
-	// Prevent division by zero.
-	coeffs = max(abs( coeffs ), 1e-5); // FIX(coeffs)
-	
-	// Lanczos2 kernel.
-	coeffs = 2.0 * sin(coeffs) * sin(coeffs / 2.0) / (coeffs * coeffs);
-	
-	// Normalize.
-	coeffs /= dot(coeffs, vec4(1.0));
-	
-	// Calculate the effective colour of the current and next
-	// scanlines at the horizontal location of the current pixel,
-	// using the Lanczos coefficients above.
-	vec4 col  = clamp(mat4(
-					
-					//#ifdef LINEAR_PROCESSING
-					pow(texture(TEXTURE, ( xy + vec2(-one.x, 0.0)		)), vec4(CRTgamma)),
-					pow(texture(TEXTURE, ( xy							)), vec4(CRTgamma)),
-					pow(texture(TEXTURE, ( xy + vec2(one.x, 0.0)		)), vec4(CRTgamma)),
-					pow(texture(TEXTURE, ( xy + vec2(2.0 * one.x, 0.0)	)), vec4(CRTgamma))) * coeffs,
-					//#else
-					//texture(TEXTURE, ( xy + vec2(-one.x, 0.0)		)),
-					//texture(TEXTURE, ( xy							)),
-					//texture(TEXTURE, ( xy + vec2(one.x, 0.0)		)),
-					//texture(TEXTURE, ( xy + vec2(2.0 * one.x, 0.0)	))) * coeffs,
-					//#endif
-					
-					0.0, 1.0);
-
-    vec4 col2 = clamp(mat4(
-					
-					//#ifdef LINEAR_PROCESSING
-					pow(texture(TEXTURE, ( xy + vec2(-one.x, one.y)		)), vec4(CRTgamma)),
-					pow(texture(TEXTURE, ( xy + vec2(0.0, one.y)		)), vec4(CRTgamma)),
-					pow(texture(TEXTURE, ( xy + one						)), vec4(CRTgamma)),
-					pow(texture(TEXTURE, ( xy + vec2(2.0 * one.x, one.y))), vec4(CRTgamma))) * coeffs,
-					//#else
-					//texture(TEXTURE, ( xy + vec2(-one.x, one.y)		)),
-					//texture(TEXTURE, ( xy + vec2(0.0, one.y)		)),
-					//texture(TEXTURE, ( xy + one						)),
-					//texture(TEXTURE, ( xy + vec2(2.0 * one.x, one.y)))) * coeffs,
-					//#endif
-					
-					0.0, 1.0);
-	
-	//#ifndef LINEAR_PROCESSING
-	//col  = pow(col , vec4(CRTgamma));
-	//col2 = pow(col2, vec4(CRTgamma));
-	//#endif
-	
-	// Calculate the influence of the current and next scanlines on
-	// the current pixel.
-	vec4 weights  = scanlineWeights(uv_ratio.y, col);
-	vec4 weights2 = scanlineWeights(1.0 - uv_ratio.y, col2);
-
-	//#ifdef OVERSAMPLE
-	uv_ratio.y =uv_ratio.y+1.0/3.0*filter_;
-	weights = (weights+scanlineWeights(uv_ratio.y, col))/3.0;
-	weights2=(weights2+scanlineWeights(abs(1.0-uv_ratio.y), col2))/3.0;
-	uv_ratio.y =uv_ratio.y-2.0/3.0*filter_;
-	weights=weights+scanlineWeights(abs(uv_ratio.y), col)/3.0;
-	weights2=weights2+scanlineWeights(abs(1.0-uv_ratio.y), col2)/3.0;
-	//#endif
-	
-	vec3 mul_res  = (col * weights + col2 * weights2).rgb * vec3(cval);
-	
-	// dot-mask emulation:
-	// Output pixels are alternately tinted green and magenta.
-	vec3 dotMaskWeights = mix(
-		vec3(1.0, 1.0 - DOTMASK, 1.0),
-		vec3(1.0 - DOTMASK, 1.0, 1.0 - DOTMASK),
-		floor(mod(mod_factor, 2.0))
-	);
-	
-	mul_res *= dotMaskWeights;
-	
-	// Convert the image gamma for display on our output device.
-	mul_res = pow(mul_res, vec3(1.0 / monitorgamma));
-	
-	// Color the texel.
-	COLOR = vec4(mul_res, 1.0);
-	COLOR = textureLod(TEXTURE,xy,10) * vec4(cval,cval,cval,1.0);
-	//COLOR = vec4(cval,cval,cval,1.0);
+	vec4 border = vec4(0.0,0.0,0.0,1.0);
+	COLOR = mix (border , vec4(ToSrgb(outColor.rgb), 1.0), cval);
 } 
 "
 
@@ -369,22 +468,28 @@ void fragment() {
 resource_local_to_scene = true
 shader = SubResource( 1 )
 shader_param/useCurvature = true
-shader_param/curvatureDistance = 1.6
+shader_param/curvatureDistance = 3.0
 shader_param/curvatureRadius = 2.0
 shader_param/cornersize = 0.03
 shader_param/cornersmooth = 100.0
-shader_param/x_tilt = 0.0
+shader_param/x_tilt = -0.2
 shader_param/y_tilt = 0.0
 shader_param/overscan_x = 100.0
 shader_param/overscan_y = 100.0
-shader_param/CRTgamma = 2.4
-shader_param/monitorgamma = 2.2
-shader_param/DOTMASK = 0.3
-shader_param/SHARPER = 1.0
-shader_param/scanline_weight = 0.25
-shader_param/lum = 0.0
-shader_param/interlace_detect = 1.0
+shader_param/hardScan = -20.0
+shader_param/hardPix = -20.0
+shader_param/warpX = 0.031
+shader_param/warpY = 0.041
+shader_param/maskDark = 1.2
+shader_param/maskLight = 0.5
+shader_param/scaleInLinearGamma = 1.0
+shader_param/shadowMask = 1.0
+shader_param/brightBoost = 1.0
+shader_param/hardBloomPix = -0.5
+shader_param/hardBloomScan = -4.0
+shader_param/bloomAmount = 0.15
+shader_param/shape = 2.2
 shader_param/OutputSize = Vector2( 1152, 648 )
 shader_param/TextureSize = Vector2( 384, 216 )
 shader_param/InputSize = Vector2( 384, 216 )
-shader_param/FrameCount = 0
+shader_param/Offset = Vector2( 0.221, 1.612 )
