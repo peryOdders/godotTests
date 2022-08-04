@@ -18,6 +18,8 @@ code = "/*
 shader_type canvas_item;
 render_mode blend_mix;
 
+uniform bool enabled = true;
+
 // Curvature Toggle
 uniform bool useCurvature = true;
 // Curvature Distance
@@ -47,15 +49,8 @@ uniform float overscan_y: hint_range(-125.0, 125.0, 1.0) = 100.0;
 
 // hardScan
 uniform float hardScan: hint_range(-20.0, 0.0, 1.0) = -8.0;
-
 // hardPix
 uniform float hardPix: hint_range(-20.0, 0.0, 1.0) = -3.0;
-
-// warpX
-uniform float warpX: hint_range(0.0, 0.125, 0.01) = 0.031;
-
-// warpY
-uniform float warpY: hint_range(0.0, 0.125, 0.01) = 0.041;
 
 // maskDark
 uniform float maskDark: hint_range(0.0, 2.0, 0.1) = 0.5;
@@ -96,8 +91,6 @@ uniform vec2 TextureSize;
 uniform vec2 InputSize;
 
 
-uniform vec2 Offset;
-
 
 varying vec2 overscan;
 varying vec2 aspect;
@@ -108,11 +101,6 @@ varying vec2 one;
 varying float mod_factor;
 varying vec2 ilfac;
 
-
-
-
-
-varying vec2 convolution[4];
 
 
 
@@ -163,33 +151,7 @@ vec3 maxscale() {
 
 
 
-void vertex() {
 
-	overscan = vec2(1.00,1.00);
-
-	aspect = vec2(1.0, 0.5625);
-	
-	const vec2 angle = vec2(0.0, 0.0);
-	
-	sinangle = sin(vec2(x_tilt, y_tilt)) + vec2(0.001);//sin(vec2(max(abs(x_tilt), 1e-3), max(abs(y_tilt), 1e-3)));
-	cosangle = cos(vec2(x_tilt, y_tilt)) + vec2(0.001);//cos(vec2(max(abs(x_tilt), 1e-3), max(abs(y_tilt), 1e-3)));
-	stretch = maxscale();
-	
-	ilfac = vec2(1.0,clamp(floor(InputSize.y/200.0), 1.0, 2.0));
-	
-	// The size of one texel, in texture-coordinates.
-	vec2 sharpTextureSize = vec2(1.0 * TextureSize.x, TextureSize.y);
-	one = ilfac / sharpTextureSize;
-	
-	// Resulting X pixel-coordinate of the pixel we're drawing.
-	mod_factor = UV.x * TextureSize.x * OutputSize.x / InputSize.x;
-	
-
-	convolution[0] = UV + one * vec2(Offset.x+0.5,Offset.y+0.5) ;//top right
-	convolution[1] = UV + one * vec2(-Offset.x-0.5,Offset.y-0.5) ;//bottom left
-	convolution[2] = UV + one * vec2(-Offset.x-0.5,Offset.y+0.5) ;//top left
-	convolution[3] = UV + one * vec2(Offset.x+0.5,-Offset.y-0.5) ;//bottom right
-}
 
 
 const float PI = 3.141592653589;
@@ -445,6 +407,28 @@ vec3 Mask(vec2 pos) {
 
 
 
+void vertex() {
+
+	overscan = vec2(1.00,1.00);
+
+	aspect = vec2(1.0, 0.5625);
+	
+	const vec2 angle = vec2(0.0, 0.0);
+	
+	sinangle = sin(vec2(x_tilt, y_tilt)) + vec2(0.001);//sin(vec2(max(abs(x_tilt), 1e-3), max(abs(y_tilt), 1e-3)));
+	cosangle = cos(vec2(x_tilt, y_tilt)) + vec2(0.001);//cos(vec2(max(abs(x_tilt), 1e-3), max(abs(y_tilt), 1e-3)));
+	stretch = maxscale();
+	
+	ilfac = vec2(1.0,clamp(floor(InputSize.y/200.0), 1.0, 2.0));
+	
+	// The size of one texel, in texture-coordinates.
+	vec2 sharpTextureSize = vec2(1.0 * TextureSize.x, TextureSize.y);
+	one = ilfac / sharpTextureSize;
+	
+	// Resulting X pixel-coordinate of the pixel we're drawing.
+	mod_factor = UV.x * TextureSize.x * OutputSize.x / InputSize.x;
+	
+}
 
 void fragment() {
 
@@ -460,13 +444,18 @@ void fragment() {
 	    outColor.rgb *= Mask(FRAGCOORD.xy * 1.000001);
 	
 	vec4 border = vec4(0.0,0.0,0.0,1.0);
-	COLOR = mix (border , vec4(ToSrgb(outColor.rgb), 1.0), cval);
+	
+	if (enabled) 
+		COLOR = mix (border , vec4(ToSrgb(outColor.rgb), 1.0), cval); 
+	else
+		COLOR = texture(TEXTURE, UV);
 } 
 "
 
 [resource]
 resource_local_to_scene = true
 shader = SubResource( 1 )
+shader_param/enabled = true
 shader_param/useCurvature = true
 shader_param/curvatureDistance = 3.0
 shader_param/curvatureRadius = 2.0
@@ -478,8 +467,6 @@ shader_param/overscan_x = 100.0
 shader_param/overscan_y = 100.0
 shader_param/hardScan = -20.0
 shader_param/hardPix = -20.0
-shader_param/warpX = 0.031
-shader_param/warpY = 0.041
 shader_param/maskDark = 1.2
 shader_param/maskLight = 0.5
 shader_param/scaleInLinearGamma = 1.0
@@ -489,7 +476,6 @@ shader_param/hardBloomPix = -0.5
 shader_param/hardBloomScan = -4.0
 shader_param/bloomAmount = 0.15
 shader_param/shape = 2.2
-shader_param/OutputSize = Vector2( 1152, 648 )
+shader_param/OutputSize = Vector2( 1980, 1080 )
 shader_param/TextureSize = Vector2( 384, 216 )
 shader_param/InputSize = Vector2( 384, 216 )
-shader_param/Offset = Vector2( 0.221, 1.612 )
