@@ -18,7 +18,7 @@ code = "/*
 shader_type canvas_item;
 render_mode blend_mix;
 
-uniform bool loDelPery = true;
+uniform bool enabled = true;
 
 // Curvature Toggle
 uniform bool useCurvature = true;
@@ -58,9 +58,6 @@ uniform float maskDark: hint_range(0.0, 2.0, 0.1) = 0.5;
 // maskLight
 uniform float maskLight: hint_range(0.0, 2.0, 0.1) = 1.5;
 
-// scaleInLinearGamma
-uniform float scaleInLinearGamma: hint_range(0.0, 1.0, 1.0) = 1.0;
-
 // shadowMask
 uniform float shadowMask: hint_range(0.0, 4.0, 1.0) = 3.0;
 
@@ -81,28 +78,13 @@ uniform float shape: hint_range(0.0, 10.0, 0.05) = 2.0;
 
 
 
-
-
-
-
-
-uniform vec2 OutputSize;
 uniform vec2 TextureSize;
-uniform vec2 InputSize;
-
-
 
 varying vec2 overscan;
 varying vec2 aspect;
 varying vec3 stretch;
 varying vec2 sinangle;
 varying vec2 cosangle;
-varying vec2 one;
-varying float mod_factor;
-varying vec2 ilfac;
-
-
-
 
 
 //Cuvature functions
@@ -128,12 +110,12 @@ vec2 bkwtrans(vec2 xy) {
 	float C = dot(poc,poc)-1.0;
 	float a = (-B+sqrt(B*B-4.0*A*C))/(2.0*A);
 	vec2 uv = (point-a*sinangle)/cosangle;
-	float r = max(abs(R*acos(a) ), 1e-5); // FIX(R*acos(a))
+	float r = max(abs(R*acos(a) ), 1e-5);
 	return uv*r/sin(r/R);
 }
 
 vec2 fwtrans(vec2 uv) {
-	float r = max(abs( sqrt(dot(uv,uv)) ), 1e-5); // FIX(sqrt(dot(uv,uv)))
+	float r = max(abs( sqrt(dot(uv,uv)) ), 1e-5);
 	float R = curvatureRadius;
 	uv *= sin(r/R)/r;
 	float x = 1.0-cos(r/R);
@@ -150,21 +132,13 @@ vec3 maxscale() {
 }
 
 
-
-
-
-
 const float PI = 3.141592653589;
 
-
 vec2 transform(vec2 coord) {
-	coord *= TextureSize / InputSize;
 	coord = (coord-vec2(0.5))*aspect*stretch.z+stretch.xy;
-	return (bkwtrans(coord)/vec2(overscan_x / 100.0, overscan_y / 100.0)/aspect+vec2(0.5)) * InputSize / TextureSize;
+	return (bkwtrans(coord)/vec2(overscan_x / 100.0, overscan_y / 100.0)/aspect+vec2(0.5));
 }
-
 float corner(vec2 coord) {
-	coord *= TextureSize / InputSize;
 	coord = (coord - vec2(0.5)) * vec2(overscan_x / 100.0, overscan_y / 100.0) + vec2(0.5);
 	coord = min(coord, vec2(1.0)-coord) * aspect;
 	vec2 cdist = vec2(cornersize);
@@ -173,47 +147,19 @@ float corner(vec2 coord) {
 	return clamp((cdist.x-dist)*cornersmooth,0.0, 1.0);
 }
 
-
-
-
-
-
-
-
-
-
-
 float ToLinear1(float c) {
-    if (scaleInLinearGamma == 0.) 
-        return c;
-    
     return(c<=0.04045) ? c/12.92 : pow((c + 0.055)/1.055, 2.4);
 }
 
 vec3 ToLinear(vec3 c) {
-    if (scaleInLinearGamma==0.) 
-        return c;
-    
     return vec3(ToLinear1(c.r), ToLinear1(c.g), ToLinear1(c.b));
 }
-
-// Linear to sRGB.
-// Assuming using sRGB typed textures this should not be needed.
-float ToSrgb1(float c) {
-    if (scaleInLinearGamma == 0.) 
-        return c;
-    
+float ToSrgb1(float c) { 
     return(c<0.0031308 ? c*12.92 : 1.055*pow(c, 0.41666) - 0.055);
 }
-
 vec3 ToSrgb(vec3 c) {
-    if (scaleInLinearGamma == 0.) 
-        return c;
-    
     return vec3(ToSrgb1(c.r), ToSrgb1(c.g), ToSrgb1(c.b));
 }
-
-//#endif
 
 // Nearest emulated sample given floating point position and texel offset.
 // Also zero's off screen.
@@ -418,16 +364,6 @@ void vertex() {
 	sinangle = sin(vec2(x_tilt, y_tilt)) + vec2(0.001);//sin(vec2(max(abs(x_tilt), 1e-3), max(abs(y_tilt), 1e-3)));
 	cosangle = cos(vec2(x_tilt, y_tilt)) + vec2(0.001);//cos(vec2(max(abs(x_tilt), 1e-3), max(abs(y_tilt), 1e-3)));
 	stretch = maxscale();
-	
-	ilfac = vec2(1.0,clamp(floor(InputSize.y/200.0), 1.0, 2.0));
-	
-	// The size of one texel, in texture-coordinates.
-	vec2 sharpTextureSize = vec2(1.0 * TextureSize.x, TextureSize.y);
-	one = ilfac / sharpTextureSize;
-	
-	// Resulting X pixel-coordinate of the pixel we're drawing.
-	mod_factor = UV.x * TextureSize.x * OutputSize.x / InputSize.x;
-	
 }
 
 void fragment() {
@@ -444,8 +380,8 @@ void fragment() {
 	    outColor.rgb *= Mask(FRAGCOORD.xy * 1.000001);
 	
 	vec4 border = vec4(0.0,0.0,0.0,1.0);
-	
-	if (loDelPery) 
+	//border +=  textureLod(TEXTURE, SCREEN_UV,5.0) * 0.1; //No mipmap for viewport at moment :(
+	if (enabled) 
 		COLOR = mix (border , vec4(ToSrgb(outColor.rgb), 1.0), cval); 
 	else
 		COLOR = texture(TEXTURE, UV);
@@ -455,7 +391,7 @@ void fragment() {
 [resource]
 resource_local_to_scene = true
 shader = SubResource( 1 )
-shader_param/loDelPery = true
+shader_param/enabled = true
 shader_param/useCurvature = true
 shader_param/curvatureDistance = 1.6
 shader_param/curvatureRadius = 2.0
@@ -469,13 +405,10 @@ shader_param/hardScan = -20.0
 shader_param/hardPix = -20.0
 shader_param/maskDark = 1.2
 shader_param/maskLight = 0.5
-shader_param/scaleInLinearGamma = 1.0
 shader_param/shadowMask = 3.0
 shader_param/brightBoost = 1.0
 shader_param/hardBloomPix = -1.8
 shader_param/hardBloomScan = -4.0
 shader_param/bloomAmount = 0.4
 shader_param/shape = 1.55
-shader_param/OutputSize = Vector2( 1980, 1080 )
 shader_param/TextureSize = Vector2( 384, 216 )
-shader_param/InputSize = Vector2( 384, 216 )
