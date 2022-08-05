@@ -3,6 +3,7 @@ extends Node
 var in_game = false
 signal game_Start(state)
 
+var screen_factor = 3
 
 func _ready():
 	_recenter()
@@ -26,6 +27,11 @@ func _process(delta):
 
 	if Input.is_action_just_released("shot") and not in_game:
 		toGame(true)
+		
+	if Input.is_action_just_released("ui_screen_up"):
+		scaleScreen(screen_factor + 1)
+	if Input.is_action_just_released("ui_screen_down"):
+		scaleScreen(screen_factor - 1)
 
 func _recenter():
 	var screen_size = OS.get_screen_size()
@@ -52,3 +58,10 @@ func quit():
 		toGame(false)
 	else:
 		get_tree().quit()
+
+func scaleScreen(scale):
+	screen_factor = scale
+	screen_factor = clamp(screen_factor, 1, 6)
+	OS.set_window_size(Vector2(384 * screen_factor, 216 * screen_factor))
+	_recenter()
+

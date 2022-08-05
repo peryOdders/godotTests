@@ -18,7 +18,7 @@ code = "/*
 shader_type canvas_item;
 render_mode blend_mix;
 
-uniform bool enabled = true;
+uniform bool loDelPery = true;
 
 // Curvature Toggle
 uniform bool useCurvature = true;
@@ -445,7 +445,7 @@ void fragment() {
 	
 	vec4 border = vec4(0.0,0.0,0.0,1.0);
 	
-	if (enabled) 
+	if (loDelPery) 
 		COLOR = mix (border , vec4(ToSrgb(outColor.rgb), 1.0), cval); 
 	else
 		COLOR = texture(TEXTURE, UV);
@@ -455,27 +455,27 @@ void fragment() {
 [resource]
 resource_local_to_scene = true
 shader = SubResource( 1 )
-shader_param/enabled = true
+shader_param/loDelPery = true
 shader_param/useCurvature = true
-shader_param/curvatureDistance = 3.0
+shader_param/curvatureDistance = 1.6
 shader_param/curvatureRadius = 2.0
 shader_param/cornersize = 0.03
 shader_param/cornersmooth = 100.0
-shader_param/x_tilt = -0.2
+shader_param/x_tilt = 0.0
 shader_param/y_tilt = 0.0
-shader_param/overscan_x = 100.0
-shader_param/overscan_y = 100.0
+shader_param/overscan_x = 98.0
+shader_param/overscan_y = 98.0
 shader_param/hardScan = -20.0
 shader_param/hardPix = -20.0
 shader_param/maskDark = 1.2
 shader_param/maskLight = 0.5
 shader_param/scaleInLinearGamma = 1.0
-shader_param/shadowMask = 1.0
+shader_param/shadowMask = 3.0
 shader_param/brightBoost = 1.0
-shader_param/hardBloomPix = -0.5
+shader_param/hardBloomPix = -1.8
 shader_param/hardBloomScan = -4.0
-shader_param/bloomAmount = 0.15
-shader_param/shape = 2.2
+shader_param/bloomAmount = 0.4
+shader_param/shape = 1.55
 shader_param/OutputSize = Vector2( 1980, 1080 )
 shader_param/TextureSize = Vector2( 384, 216 )
 shader_param/InputSize = Vector2( 384, 216 )
