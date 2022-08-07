@@ -5,15 +5,20 @@ resource_local_to_scene = true
 code = "shader_type canvas_item;
 
 uniform float blur = 0.0;
+uniform float offset = 0.0;
+
 void fragment() {
 
-	vec3 c = textureLod(SCREEN_TEXTURE, SCREEN_UV, blur).rgb;
-	//c = vec3(1.0,0.0,0.0);
-	COLOR = vec4(c,1.0);
+	float r = textureLod(SCREEN_TEXTURE, SCREEN_UV + vec2(offset * SCREEN_PIXEL_SIZE.x,0.0), blur).r;
+	float g = textureLod(SCREEN_TEXTURE, SCREEN_UV, blur).g;
+	float b = textureLod(SCREEN_TEXTURE, SCREEN_UV - vec2(offset * SCREEN_PIXEL_SIZE.x,0.0), blur).b;
+
+	COLOR = vec4(r,g,b, 1.0);
 } 
 "
 
 [resource]
 resource_local_to_scene = true
 shader = SubResource( 1 )
-shader_param/blur = 4.0
+shader_param/blur = 2.0
+shader_param/offset = 4.0

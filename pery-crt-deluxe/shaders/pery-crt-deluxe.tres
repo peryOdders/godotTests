@@ -1,7 +1,6 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=2]
 
 [sub_resource type="Shader" id=1]
-resource_local_to_scene = true
 code = "/*
 	This shader is based in:
 	Libretro's crt-geom.glsl
@@ -76,6 +75,13 @@ uniform float bloomAmount: hint_range(0.0, 1.0, 0.05) = 0.15;
 // filter kernel shape
 uniform float shape: hint_range(0.0, 10.0, 0.05) = 2.0;
 
+
+uniform float hue: hint_range(0.0, 1.0, 0.01) = 0.0;
+uniform float saturation: hint_range(0.0, 2.0, 0.01) = 1.0;
+uniform float brightness: hint_range(0.0, 2.0, 0.01) = 1.0;
+uniform float contrast: hint_range(0.0, 2.0, 0.01) = 1.0;
+uniform float distortion: hint_range(0.0, 2.0, 0.01) = 0.001;
+uniform float flicker: hint_range(0.0, 1.0, 0.01) = 0.001;
 
 
 uniform vec2 TextureSize;
@@ -351,6 +357,24 @@ vec3 Mask(vec2 pos) {
 	return mask;
 }
 
+vec3 Luminance(vec3 color){
+	return vec3(dot(color, vec3(0.2126729,  0.7151522, 0.0721750)));
+}
+
+vec3 applyHue(vec3 aColor, float aHue){
+	float angle = radians(aHue);
+	vec3 k = vec3(0.57735, 0.57735, 0.57735);
+	float cosAngle = cos(angle);
+	return aColor * cosAngle + cross(k, aColor) * sin(angle) + k * dot(k, aColor) * (1.0 - cosAngle);
+}
+
+vec3 applyHSBEffect(vec3 startColor){
+	vec3 outputColor = startColor;
+	outputColor.rgb = applyHue(outputColor.rgb, hue * 360.0);
+	outputColor.rgb = (outputColor.rgb - 0.5f) * contrast + 0.5f + (brightness - 1.0);
+	outputColor.rgb = mix(Luminance(outputColor.rgb), outputColor.rgb, saturation);
+	return outputColor;
+}
 
 
 void vertex() {
@@ -371,16 +395,25 @@ void fragment() {
 	vec2 xy = useCurvature ? transform(UV.xy) : UV.xy;
 	float cval = useCurvature ? corner(xy) : 1.0;
 	
+		        float x = sin(0.1*TIME+xy.y*10.0)
+            		* sin(0.2*TIME+xy.y*20.0)
+            		* sin(0.3*TIME+xy.y*40.0);
+
+            	x *= distortion;
 	
-	vec3 outColor = Tri(TEXTURE, xy);
-	vec3 bloom = Bloom(TEXTURE, xy);
-	outColor.rgb += bloom * bloomAmount;
+	vec3 outColor = Tri(TEXTURE, xy + x);
+	vec3 bloom = Bloom(TEXTURE, xy - x);
+	outColor += bloom * bloomAmount;
+	
+	outColor = applyHSBEffect(outColor.rgb);
 	
 	if (shadowMask > 0.0)
-	    outColor.rgb *= Mask(FRAGCOORD.xy * 1.000001);
+	    outColor *= Mask(FRAGCOORD.xy * 1.000001);
+
+	outColor *= (1.0 - flicker * 0.2 * (sin(50.0*TIME+xy.y*2.0)*0.5+0.5));
 	
 	vec4 border = vec4(0.0,0.0,0.0,1.0);
-	//border +=  textureLod(TEXTURE, SCREEN_UV,5.0) * 0.1; //No mipmap for viewport at moment :(
+	//border =  textureLod(TEXTURE, SCREEN_UV,5.0) * 0.1; //No mipmap for viewport at moment :(
 	if (enabled) 
 		COLOR = mix (border , vec4(ToSrgb(outColor.rgb), 1.0), cval); 
 	else
@@ -399,16 +432,22 @@ shader_param/cornersize = 0.03
 shader_param/cornersmooth = 100.0
 shader_param/x_tilt = 0.0
 shader_param/y_tilt = 0.0
-shader_param/overscan_x = 98.0
-shader_param/overscan_y = 98.0
-shader_param/hardScan = -20.0
-shader_param/hardPix = -20.0
-shader_param/maskDark = 1.2
-shader_param/maskLight = 0.5
+shader_param/overscan_x = 100.0
+shader_param/overscan_y = 100.0
+shader_param/hardScan = -8.0
+shader_param/hardPix = -3.0
+shader_param/maskDark = 0.5
+shader_param/maskLight = 1.5
 shader_param/shadowMask = 3.0
 shader_param/brightBoost = 1.0
-shader_param/hardBloomPix = -1.8
-shader_param/hardBloomScan = -4.0
-shader_param/bloomAmount = 0.4
-shader_param/shape = 1.55
+shader_param/hardBloomPix = -1.5
+shader_param/hardBloomScan = -2.0
+shader_param/bloomAmount = 0.15
+shader_param/shape = 2.0
+shader_param/hue = 0.0
+shader_param/saturation = 1.0
+shader_param/brightness = 1.0
+shader_param/contrast = 1.0
+shader_param/distortion = 0.001
+shader_param/flicker = 0.001
 shader_param/TextureSize = Vector2( 384, 216 )

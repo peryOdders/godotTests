@@ -37,6 +37,7 @@ func _recenter():
 	var screen_size = OS.get_screen_size()
 	var window_size = OS.get_window_size()
 	OS.set_window_position(screen_size*0.5 - window_size*0.5)
+	OS.set_window_title("WeaEspasial [0%x1%]".format([window_size.x, window_size.y], "_%"))
 
 
 func _show_help_toggle():
