@@ -82,6 +82,8 @@ uniform float brightness: hint_range(0.0, 2.0, 0.01) = 1.0;
 uniform float contrast: hint_range(0.0, 2.0, 0.01) = 1.0;
 uniform float distortion: hint_range(0.0, 2.0, 0.01) = 0.001;
 uniform float flicker: hint_range(0.0, 1.0, 0.01) = 0.001;
+uniform float noiseAmount: hint_range(0.0, 1.0, 0.01) = 0.001;
+uniform float noiseSize: hint_range(0.0, 1.0, 0.01) = 0.001;
 
 
 uniform vec2 TextureSize;
@@ -376,6 +378,32 @@ vec3 applyHSBEffect(vec3 startColor){
 	return outputColor;
 }
 
+//Noise
+float rand(vec2 co){
+	float speed = 0.001 * TIME;
+	return fract((sin( dot(co.xy , vec2(100.0 * speed, 1.0 * speed) )) * 10000.0+ speed));
+}
+            
+float noise (in vec2 st){
+	vec2 i = floor(st);
+	vec2 f = fract(st);
+
+	// Four corners in 2D of a tile
+	float a = rand(i);
+	float b = rand(i + vec2(1.0, 0.0));
+	float c = rand(i + vec2(0.0, 1.0));
+	float d = rand(i + vec2(1.0, 1.0));
+
+	// Smooth Interpolation
+	// Cubic Hermine Curve.  Same as SmoothStep()
+	vec2 u = f*f*(3.0-2.0*f);
+	u = smoothstep(0.,1.,f);
+	// Mix 4 coorners percentages
+	return mix(a, b, u.x) +
+       (c - a)* u.y * (1.0 - u.x) +
+       (d - b) * u.x * u.y;
+}
+
 
 void vertex() {
 
@@ -411,6 +439,11 @@ void fragment() {
 	    outColor *= Mask(FRAGCOORD.xy * 1.000001);
 
 	outColor *= (1.0 - flicker * 0.2 * (sin(50.0*TIME+xy.y*2.0)*0.5+0.5));
+	
+	/* Noise */
+//_NoiseSize*=_NoiseSize*0.5;
+//_NoiseAmount*=_NoiseAmount;
+	outColor.rgb += mix( -noiseAmount, noiseAmount, noise(xy* 1./noiseSize*100.0));
 	
 	vec4 border = vec4(0.0,0.0,0.0,1.0);
 	//border =  textureLod(TEXTURE, SCREEN_UV,5.0) * 0.1; //No mipmap for viewport at moment :(
@@ -450,4 +483,6 @@ shader_param/brightness = 1.0
 shader_param/contrast = 1.0
 shader_param/distortion = 0.001
 shader_param/flicker = 0.001
+shader_param/noiseAmount = 0.001
+shader_param/noiseSize = 0.2
 shader_param/TextureSize = Vector2( 384, 216 )
