@@ -3,12 +3,11 @@
 [sub_resource type="Shader" id=1]
 resource_local_to_scene = true
 code = "shader_type canvas_item;
+render_mode blend_add;
 
 uniform float blur : hint_range(0.0, 5.0, 0.1) = 0.0;
 uniform float offset : hint_range(0.0, 10.0, 0.1) = 0.0;
-
-uniform sampler2D fullT;
-uniform sampler2D blurT;
+uniform float weight : hint_range(0.0, 1.0, 0.01) = 0.0;
 
 vec3 chromatic (sampler2D _texture, vec2 uv, float o, float bl){
 	float r = textureLod(_texture, uv + vec2(o,0.0), bl).r;
@@ -18,23 +17,20 @@ vec3 chromatic (sampler2D _texture, vec2 uv, float o, float bl){
 	return vec3(r,g,b);
 }
 void fragment() {
-/*
-	float r = textureLod(SCREEN_TEXTURE, SCREEN_UV + vec2(offset * SCREEN_PIXEL_SIZE.x,0.0), blur).r;
-	float g = textureLod(SCREEN_TEXTURE, SCREEN_UV, blur).g;
-	float b = textureLod(SCREEN_TEXTURE, SCREEN_UV - vec2(offset * SCREEN_PIXEL_SIZE.x,0.0), blur).b;
-*/	
+	
 	float off = offset * SCREEN_PIXEL_SIZE.x;
 	vec3 t1 = chromatic(SCREEN_TEXTURE, SCREEN_UV,off, blur);
 	vec3 t2 = chromatic(SCREEN_TEXTURE, SCREEN_UV,off*1.5, 1.5 * blur);
 	vec3 t3 = chromatic(SCREEN_TEXTURE, SCREEN_UV,off*2.0, 2.0 * blur);
 	vec3 sb =  vec3((t1+t2+t3)/3.0);
 
-	COLOR = vec4(sb,1.0);
+	COLOR = vec4(sb,weight);
 } 
 "
 
 [resource]
 resource_local_to_scene = true
 shader = SubResource( 1 )
-shader_param/blur = 3.0
-shader_param/offset = 8.1
+shader_param/blur = 0.5
+shader_param/offset = 1.0
+shader_param/weight = 0.82

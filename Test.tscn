@@ -124,6 +124,5 @@ position = Vector2( 111, -30 )
 [node name="Music" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 11 )
 volume_db = -10.0
-autoplay = true
 
 [connection signal="game_Start" from="ScreenControl" to="Player" method="_on_ScreenControl_game_Start"]
