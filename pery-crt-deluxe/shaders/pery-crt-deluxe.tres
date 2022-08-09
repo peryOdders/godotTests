@@ -441,9 +441,8 @@ void fragment() {
 	outColor *= (1.0 - flicker * 0.2 * (sin(50.0*TIME+xy.y*2.0)*0.5+0.5));
 	
 	/* Noise */
-//_NoiseSize*=_NoiseSize*0.5;
-//_NoiseAmount*=_NoiseAmount;
-	outColor.rgb += mix( -noiseAmount, noiseAmount, noise(xy* 1./noiseSize*100.0));
+	float nA = noiseAmount*noiseAmount;
+	outColor.rgb += mix( -nA, nA, noise(xy* 1.0/noiseSize*100.0));
 	
 	vec4 border = vec4(0.0,0.0,0.0,1.0);
 	//border =  textureLod(TEXTURE, SCREEN_UV,5.0) * 0.1; //No mipmap for viewport at moment :(
@@ -461,7 +460,7 @@ shader_param/enabled = true
 shader_param/useCurvature = true
 shader_param/curvatureDistance = 1.6
 shader_param/curvatureRadius = 2.0
-shader_param/cornersize = 0.03
+shader_param/cornersize = 0.015
 shader_param/cornersmooth = 100.0
 shader_param/x_tilt = 0.0
 shader_param/y_tilt = 0.0
@@ -483,6 +482,6 @@ shader_param/brightness = 1.0
 shader_param/contrast = 1.0
 shader_param/distortion = 0.001
 shader_param/flicker = 0.001
-shader_param/noiseAmount = 0.001
-shader_param/noiseSize = 0.2
+shader_param/noiseAmount = 0.07
+shader_param/noiseSize = 0.02
 shader_param/TextureSize = Vector2( 384, 216 )
