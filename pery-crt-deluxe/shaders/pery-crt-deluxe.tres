@@ -43,6 +43,8 @@ uniform float overscan_x: hint_range(-125.0, 125.0, 1.0) = 100.0;
 // Vert. Overscan %
 uniform float overscan_y: hint_range(-125.0, 125.0, 1.0) = 100.0;
 
+uniform vec4 border_color : hint_color;
+
 uniform float vignetteIntensity: hint_range(0.0, 1.0, 0.05) = 0.25;
 uniform float vignetteOpacity: hint_range(0.0, 2.0, 0.05) = 1.0;
 
@@ -423,11 +425,11 @@ void fragment() {
 	float cval = useCurvature ? corner(xy) : 1.0;
 	
 	float x = sin(0.1*TIME+(xy.y*10.0))
-    	* sin(0.2*TIME+(xy.y*20.01))
+    	* sin(0.2*TIME+(xy.y*80.01))
     	* cos(0.3*TIME+(xy.y*40.01));
 
-    //x *= distortion;
-    x *= 0.0;
+    x *= distortion;
+    //x *= 0.1;
 	
 	vec3 outColor = Tri(TEXTURE, xy + x);
 	vec3 bloom = Bloom(TEXTURE, xy - x);
@@ -446,11 +448,11 @@ void fragment() {
 	float nA = noiseAmount*noiseAmount;
 	outColor.rgb += mix( -nA, nA, noise(xy* 1.0/noiseSize*100.0));
 	
-	vec4 border = vec4(0.0,0.0,0.0,1.0);
+	//vec4 border = vec4(0.0,0.0,0.0,1.0);
 	outColor *= vignette(xy);
 	
 	if (enabled) 
-		COLOR = mix (border , vec4(ToSrgb(outColor.rgb), 1.0), cval); 
+		COLOR = mix (border_color , vec4(ToSrgb(outColor.rgb), 1.0), cval); 
 	else
 		COLOR = texture(TEXTURE, UV);
 		
@@ -469,6 +471,7 @@ shader_param/x_tilt = 0.0
 shader_param/y_tilt = 0.0
 shader_param/overscan_x = 100.0
 shader_param/overscan_y = 100.0
+shader_param/border_color = Color( 0.0156863, 0.00784314, 0.0862745, 1 )
 shader_param/vignetteIntensity = 0.25
 shader_param/vignetteOpacity = 1.0
 shader_param/hardScan = -8.0
@@ -485,7 +488,7 @@ shader_param/hue = 0.0
 shader_param/saturation = 1.0
 shader_param/brightness = 1.0
 shader_param/contrast = 1.0
-shader_param/distortion = 0.1
+shader_param/distortion = 0.0
 shader_param/flicker = 0.24
 shader_param/noiseAmount = 0.03
 shader_param/noiseSize = 0.28

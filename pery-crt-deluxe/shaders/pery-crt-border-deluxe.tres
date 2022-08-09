@@ -5,7 +5,10 @@ resource_local_to_scene = true
 code = "shader_type canvas_item;
 render_mode blend_add;
 
-uniform float blur : hint_range(0.0, 5.0, 0.1) = 0.0;
+uniform float blurA : hint_range(0.0, 5.0, 0.1) = 0.0;
+uniform float blurB : hint_range(0.0, 5.0, 0.1) = 1.0;
+uniform float blurC : hint_range(0.0, 5.0, 0.1) = 3.0;
+
 uniform float offset : hint_range(0.0, 10.0, 0.1) = 0.0;
 uniform float weight : hint_range(0.0, 1.0, 0.01) = 0.0;
 
@@ -19,9 +22,9 @@ vec3 chromatic (sampler2D _texture, vec2 uv, float o, float bl){
 void fragment() {
 	
 	float off = offset * SCREEN_PIXEL_SIZE.x;
-	vec3 t1 = chromatic(SCREEN_TEXTURE, SCREEN_UV,off, blur);
-	vec3 t2 = chromatic(SCREEN_TEXTURE, SCREEN_UV,off*1.5, 1.5 * blur);
-	vec3 t3 = chromatic(SCREEN_TEXTURE, SCREEN_UV,off*2.0, 2.0 * blur);
+	vec3 t1 = chromatic(SCREEN_TEXTURE, SCREEN_UV,off, blurA);
+	vec3 t2 = chromatic(SCREEN_TEXTURE, SCREEN_UV,off*1.5, blurB);
+	vec3 t3 = chromatic(SCREEN_TEXTURE, SCREEN_UV,off*2.0, blurC);
 	vec3 sb =  vec3((t1+t2+t3)/3.0);
 
 	COLOR = vec4(sb,weight);
@@ -31,6 +34,8 @@ void fragment() {
 [resource]
 resource_local_to_scene = true
 shader = SubResource( 1 )
-shader_param/blur = 0.5
-shader_param/offset = 1.0
-shader_param/weight = 0.82
+shader_param/blurA = 0.5
+shader_param/blurB = 0.8
+shader_param/blurC = 2.6
+shader_param/offset = 1.5
+shader_param/weight = 0.54
