@@ -16,10 +16,13 @@ dof_blur_near_quality = 2
 glow_enabled = true
 glow_levels/1 = true
 glow_levels/5 = false
-glow_intensity = 0.13
+glow_intensity = 0.39
 glow_strength = 1.2
 glow_bloom = 0.03
 glow_blend_mode = 1
+glow_hdr_threshold = 0.89
+glow_hdr_scale = 0.56
+glow_high_quality = true
 
 [sub_resource type="ParticlesMaterial" id=2]
 emission_shape = 5
@@ -125,39 +128,39 @@ render_target_update_mode = 3
 
 [node name="Game" parent="ViewportContainer/Viewport" instance=ExtResource( 1 )]
 
-[node name="Particles2D" type="Particles2D" parent="."]
+[node name="Particles2D" type="Particles2D" parent="ViewportContainer/Viewport"]
 position = Vector2( 120.807, 81.236 )
 amount = 50
 speed_scale = 0.2
 visibility_rect = Rect2( -25, -25, 50, 50 )
 process_material = SubResource( 2 )
 
-[node name="Enemy-big" type="Sprite" parent="."]
+[node name="Enemy-big" type="Sprite" parent="ViewportContainer/Viewport"]
 position = Vector2( 198, 134 )
 texture = ExtResource( 4 )
 
-[node name="Explosion" type="Sprite" parent="Enemy-big"]
+[node name="Explosion" type="Sprite" parent="ViewportContainer/Viewport/Enemy-big"]
 position = Vector2( -1, -23 )
 texture = ExtResource( 5 )
 hframes = 5
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Enemy-big/Explosion"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ViewportContainer/Viewport/Enemy-big/Explosion"]
 playback_speed = 2.0
 anims/RESET = SubResource( 3 )
 anims/boom = SubResource( 4 )
 
-[node name="Enemy-small" type="Sprite" parent="Enemy-big"]
+[node name="Enemy-small" type="Sprite" parent="ViewportContainer/Viewport/Enemy-big"]
 position = Vector2( -40, -13 )
 texture = ExtResource( 7 )
 
-[node name="Power-up" type="Sprite" parent="Enemy-big"]
+[node name="Power-up" type="Sprite" parent="ViewportContainer/Viewport/Enemy-big"]
 position = Vector2( -43, 32 )
 texture = ExtResource( 6 )
 hframes = 2
 vframes = 2
 frame = 2
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Enemy-big/Power-up"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ViewportContainer/Viewport/Enemy-big/Power-up"]
 playback_speed = 3.0
 anims/RESET = SubResource( 5 )
 anims/p1 = SubResource( 6 )

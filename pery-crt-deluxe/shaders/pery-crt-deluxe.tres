@@ -6,6 +6,8 @@ code = "/*
 	Libretro's crt-geom.glsl
 	Source: https://github.com/libretro/glsl-shaders/blob/master/crt/shaders/crt-geom.glsl
 	and
+	libretro's crt-lottes.glsl
+	Source: https://github.com/libretro/glsl-shaders/blob/master/crt/shaders/crt-lottes.glsl
 	
 	
 	This program is free software; you can redistribute it and/or modify it
@@ -25,7 +27,6 @@ uniform bool useCurvature = true;
 uniform float curvatureDistance: hint_range(0.1, 3.0, 0.1) = 1.6;
 // Curvature Radius
 uniform float curvatureRadius: hint_range(0.1, 10.0, 0.1) = 2.0;
-
 // Corner Size
 uniform float cornersize: hint_range(0.01, 1.0, 0.005) = 0.03;
 // Corner Smoothness
@@ -42,36 +43,25 @@ uniform float overscan_x: hint_range(-125.0, 125.0, 1.0) = 100.0;
 uniform float overscan_y: hint_range(-125.0, 125.0, 1.0) = 100.0;
 
 
-
-
-
-
 // hardScan
 uniform float hardScan: hint_range(-20.0, 0.0, 1.0) = -8.0;
 // hardPix
 uniform float hardPix: hint_range(-20.0, 0.0, 1.0) = -3.0;
-
 // maskDark
 uniform float maskDark: hint_range(0.0, 2.0, 0.1) = 0.5;
-
 // maskLight
 uniform float maskLight: hint_range(0.0, 2.0, 0.1) = 1.5;
-
 // shadowMask
 uniform float shadowMask: hint_range(0.0, 4.0, 1.0) = 3.0;
-
 // brightness boost
 uniform float brightBoost: hint_range(0.0, 2.0, 0.05) = 1.0;
-
 // bloom-x soft
 uniform float hardBloomPix: hint_range(-2.0, -0.5, 0.1) = -1.5;
-
 // bloom-y soft
 uniform float hardBloomScan: hint_range(-4.0, -1.0, 0.1) = -2.0;
 
 // bloom ammount
 uniform float bloomAmount: hint_range(0.0, 1.0, 0.05) = 0.15;
-
 // filter kernel shape
 uniform float shape: hint_range(0.0, 10.0, 0.05) = 2.0;
 
@@ -450,6 +440,8 @@ void fragment() {
 		COLOR = mix (border , vec4(ToSrgb(outColor.rgb), 1.0), cval); 
 	else
 		COLOR = texture(TEXTURE, UV);
+		
+	//COLOR = vec4(Mask(FRAGCOORD.xy * 1.000001),1.0);
 } 
 "
 
@@ -480,8 +472,8 @@ shader_param/hue = 0.0
 shader_param/saturation = 1.0
 shader_param/brightness = 1.0
 shader_param/contrast = 1.0
-shader_param/distortion = 0.001
-shader_param/flicker = 0.001
-shader_param/noiseAmount = 0.07
-shader_param/noiseSize = 0.02
+shader_param/distortion = 0.0
+shader_param/flicker = 0.24
+shader_param/noiseAmount = 0.03
+shader_param/noiseSize = 0.28
 shader_param/TextureSize = Vector2( 384, 216 )
