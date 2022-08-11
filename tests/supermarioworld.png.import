@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/supermarioworld.png-25ad178d7d5a9c5d4ffaada69369a2a3.stex"
+path="res://.import/supermarioworld.png-0b9d6f10ebb3be40685f9f23b1a2ba32.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pery-crt-deluxe/screenshots/supermarioworld.png"
-dest_files=[ "res://.import/supermarioworld.png-25ad178d7d5a9c5d4ffaada69369a2a3.stex" ]
+source_file="res://tests/supermarioworld.png"
+dest_files=[ "res://.import/supermarioworld.png-0b9d6f10ebb3be40685f9f23b1a2ba32.stex" ]
 
 [params]
 

@@ -34,8 +34,8 @@ void fragment() {
 [resource]
 resource_local_to_scene = true
 shader = SubResource( 1 )
-shader_param/blurA = 0.5
+shader_param/blurA = 1.0
 shader_param/blurB = 0.8
-shader_param/blurC = 2.6
-shader_param/offset = 1.5
-shader_param/weight = 0.54
+shader_param/blurC = 3.0
+shader_param/offset = 1.3
+shader_param/weight = 0.77

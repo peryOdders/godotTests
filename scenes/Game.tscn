@@ -1,11 +1,11 @@
 [gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://fonts/PressStart2P-vaV7.ttf" type="DynamicFontData" id=1]
-[ext_resource path="res://HelpText.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/HelpText.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scrips/ScreenControl.gd" type="Script" id=3]
 [ext_resource path="res://art/Space Shooter files/background/layered/bg-back.png" type="Texture" id=4]
 [ext_resource path="res://art/Space Shooter files/background/layered/bg-planet.png" type="Texture" id=5]
-[ext_resource path="res://Player.tscn" type="PackedScene" id=10]
+[ext_resource path="res://scenes/entities/Player.tscn" type="PackedScene" id=10]
 [ext_resource path="res://art/Space Shooter files/music/exports/space-asteroids.ogg" type="AudioStream" id=11]
 [ext_resource path="res://art/Space Shooter files/Sound FX/hit.wav" type="AudioStream" id=12]
 [ext_resource path="res://art/Space Shooter files/background/layered/bg-stars.png" type="Texture" id=14]

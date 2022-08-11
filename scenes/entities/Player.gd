@@ -6,7 +6,7 @@ var screen_size # Size of the game window.
 var shoting = false
 var in_game = false
 
-const bullet_path = preload("res://Bullet.tscn")
+const bullet_path = preload("res://scenes/entities/Bullet.tscn")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
