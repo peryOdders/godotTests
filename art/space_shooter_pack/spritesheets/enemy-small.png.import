@@ -14,7 +14,7 @@ dest_files=[ "res://.import/enemy-small.png-1f38d86b41b18b0d787d3dc27e3f2a06.ste
 
 [params]
 
-compress/mode=0
+compress/mode=3
 compress/lossy_quality=0.7
 compress/hdr_mode=0
 compress/bptc_ldr=0

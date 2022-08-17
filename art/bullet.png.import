@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/alien-enemy-flying8.png-00ca8b931fc9b458860709b540084786.stex"
+path="res://.import/bullet.png-7adc94fbe6e31c193382926bba42bd83.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/Sideview Sci-Fi - Patreon Collection/Sprites/alien-flying-enemy/sprites/alien-enemy-flying8.png"
-dest_files=[ "res://.import/alien-enemy-flying8.png-00ca8b931fc9b458860709b540084786.stex" ]
+source_file="res://art/bullet.png"
+dest_files=[ "res://.import/bullet.png-7adc94fbe6e31c193382926bba42bd83.stex" ]
 
 [params]
 
@@ -31,5 +31,5 @@ process/invert_color=false
 process/normal_map_invert_y=false
 stream=false
 size_limit=0
-detect_3d=true
+detect_3d=false
 svg/scale=1.0

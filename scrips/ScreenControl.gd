@@ -14,7 +14,7 @@ func _ready():
 	$HelpLabel.visible = false
 	
 	
-func _process(delta):
+func _process(_delta):
 	if Input.is_action_just_released("ui_full_screen"):
 		OS.window_fullscreen = !OS.window_fullscreen
 		_recenter()

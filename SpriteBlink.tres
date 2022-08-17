@@ -1,0 +1,15 @@
+[gd_resource type="Shader" format=2]
+
+[resource]
+resource_local_to_scene = true
+code = "shader_type canvas_item;
+
+uniform float blink : hint_range(0.0, 1.0, 0.1) = 0.0;
+uniform float boost = 1.0;
+uniform vec4 color : hint_color = vec4(0.0);
+
+void fragment(){
+	vec4 t = texture(TEXTURE, UV); 
+	vec4 r = t + color * boost;
+	COLOR = mix(t,r,blink);
+}"

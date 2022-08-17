@@ -1,107 +1,39 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://pery_crt_deluxe/shaders/pery_crt_deluxe_blur.tres" type="Material" id=1]
-[ext_resource path="res://art/space_shooter_pack/spritesheets/enemy-big.png" type="Texture" id=2]
-[ext_resource path="res://art/space_shooter_pack/spritesheets/power-up.png" type="Texture" id=3]
-[ext_resource path="res://art/space_shooter_pack/spritesheets/enemy-small.png" type="Texture" id=4]
-[ext_resource path="res://art/space_shooter_pack/spritesheets/explosion.png" type="Texture" id=5]
+[ext_resource path="res://scenes/entities/EnemyShipSmall.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/entities/EnemyShipMedium.tscn" type="PackedScene" id=3]
 [ext_resource path="res://pery_crt_deluxe/shaders/pery_crt_deluxe.tres" type="Material" id=6]
 [ext_resource path="res://scenes/Game.tscn" type="PackedScene" id=7]
+[ext_resource path="res://scenes/entities/EnemyWasp.tscn" type="PackedScene" id=8]
 
 [sub_resource type="Environment" id=1]
 background_mode = 4
 tonemap_mode = 2
 dof_blur_near_amount = 0.2
 dof_blur_near_quality = 2
+glow_enabled = true
 glow_levels/1 = true
 glow_levels/5 = false
-glow_intensity = 0.39
-glow_strength = 1.33
-glow_bloom = 0.03
-glow_blend_mode = 1
-glow_hdr_threshold = 0.89
-glow_hdr_scale = 0.56
+glow_intensity = 2.36
+glow_strength = 0.55
+glow_bloom = 0.71
+glow_hdr_threshold = 0.27
 glow_high_quality = true
 
-[sub_resource type="Animation" id=3]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/path = NodePath(".:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ 0 ]
-}
+[sub_resource type="Shader" id=2]
+code = "shader_type canvas_item;
 
-[sub_resource type="Animation" id=4]
-resource_name = "boom"
-length = 0.45
-tracks/0/type = "value"
-tracks/0/path = NodePath(".:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0, 0.4, 0.401 ),
-"transitions": PoolRealArray( 1, 1, 1 ),
-"update": 0,
-"values": [ 0, 4, 4 ]
-}
+uniform float blink = 1.0;
 
-[sub_resource type="Animation" id=5]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/path = NodePath(".:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ 2 ]
-}
+void fragment(){
+  COLOR = texture(TEXTURE, UV) * blink; //read from texture
+}"
 
-[sub_resource type="Animation" id=6]
-resource_name = "p1"
-loop = true
-tracks/0/type = "value"
-tracks/0/path = NodePath(".:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0, 0.5 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 1,
-"values": [ 2, 3 ]
-}
-
-[sub_resource type="ParticlesMaterial" id=2]
-emission_shape = 5
-emission_ring_radius = 6.0
-emission_ring_inner_radius = 10.0
-emission_ring_height = 0.0
-emission_ring_axis = Vector3( 0, 0, 1 )
-flag_disable_z = true
-gravity = Vector3( 0, 0, 0 )
-orbit_velocity = 1.0
-orbit_velocity_random = 0.52
-radial_accel = 38.6
-radial_accel_random = 0.35
-tangential_accel = -100.0
-tangential_accel_random = 0.37
-scale = 2.0
-scale_random = 1.0
-color = Color( 1, 0.639216, 0.968627, 0.705882 )
+[sub_resource type="ShaderMaterial" id=3]
+resource_local_to_scene = true
+shader = SubResource( 2 )
+shader_param/blink = 1.0
 
 [node name="example" type="Node2D"]
 __meta__ = {
@@ -113,6 +45,7 @@ environment = SubResource( 1 )
 
 [node name="ViewportContainer" type="ViewportContainer" parent="."]
 material = ExtResource( 6 )
+anchor_right = 1.0
 margin_right = 384.0
 margin_bottom = 216.0
 rect_scale = Vector2( 1, 0.998377 )
@@ -125,47 +58,26 @@ hdr = false
 usage = 0
 render_target_update_mode = 3
 
-[node name="Enemy-big" type="Sprite" parent="ViewportContainer/Viewport"]
-visible = false
-position = Vector2( 198, 134 )
-texture = ExtResource( 2 )
+[node name="EnemyWasp2" parent="ViewportContainer/Viewport" instance=ExtResource( 8 )]
+position = Vector2( 154, 125 )
 
-[node name="Explosion" type="Sprite" parent="ViewportContainer/Viewport/Enemy-big"]
-position = Vector2( -1, -23 )
-texture = ExtResource( 5 )
-hframes = 5
+[node name="EnemyWasp" parent="ViewportContainer/Viewport" instance=ExtResource( 8 )]
+material = SubResource( 3 )
+position = Vector2( 117, 105 )
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="ViewportContainer/Viewport/Enemy-big/Explosion"]
-playback_speed = 2.0
-anims/RESET = SubResource( 3 )
-anims/boom = SubResource( 4 )
+[node name="EnemyShipSmall" parent="ViewportContainer/Viewport" instance=ExtResource( 2 )]
+position = Vector2( 182, 95 )
 
-[node name="Enemy-small" type="Sprite" parent="ViewportContainer/Viewport/Enemy-big"]
-position = Vector2( -40, -13 )
-texture = ExtResource( 4 )
+[node name="EnemyShipSmall2" parent="ViewportContainer/Viewport" instance=ExtResource( 2 )]
+position = Vector2( 215, 112 )
 
-[node name="Power-up" type="Sprite" parent="ViewportContainer/Viewport/Enemy-big"]
-position = Vector2( -43, 32 )
-texture = ExtResource( 3 )
-hframes = 2
-vframes = 2
-frame = 2
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="ViewportContainer/Viewport/Enemy-big/Power-up"]
-playback_speed = 3.0
-anims/RESET = SubResource( 5 )
-anims/p1 = SubResource( 6 )
-
-[node name="Particles2D" type="Particles2D" parent="ViewportContainer/Viewport/Enemy-big"]
-position = Vector2( -77.193, -52.764 )
-amount = 50
-speed_scale = 0.2
-visibility_rect = Rect2( -25, -25, 50, 50 )
-process_material = SubResource( 2 )
+[node name="ShipMedium" parent="ViewportContainer/Viewport" instance=ExtResource( 3 )]
+position = Vector2( 266, 120 )
 
 [node name="Game" parent="ViewportContainer/Viewport" instance=ExtResource( 7 )]
 
 [node name="Blur" type="ColorRect" parent="ViewportContainer/Viewport"]
+visible = false
 material = ExtResource( 1 )
 margin_right = 384.0
 margin_bottom = 216.0
