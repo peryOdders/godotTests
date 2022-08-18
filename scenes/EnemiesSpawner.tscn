@@ -1,0 +1,10 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://scenes/entities/EnemyWasp.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scenes/entities/EnemyShipMedium.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/entities/EnemyShipSmall.tscn" type="PackedScene" id=3]
+[ext_resource path="res://EnemiesSpawner.gd" type="Script" id=4]
+
+[node name="EnemiesSpawner" type="Node2D"]
+script = ExtResource( 4 )
+enemies = [ ExtResource( 3 ), ExtResource( 2 ), ExtResource( 1 ) ]

@@ -10,6 +10,7 @@ const bullet_path = preload("res://scenes/entities/Bullet.tscn")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	Global.player_ref = self
 	screen_size = get_viewport_rect().size
 	$AnimatedSprite.play()
 	position = Vector2(screen_size.x / 2 , screen_size.y / 1.1)
@@ -46,7 +47,6 @@ func shot():
 	shoting = true
 	$AudioShot.play()
 	var bullet = bullet_path.instance()
-	#get_tree().get_root().add_child(bullet)
 	get_parent().add_child(bullet)
 	bullet.position = position + Vector2(0,-15)
 

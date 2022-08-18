@@ -1,11 +1,8 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://pery_crt_deluxe/shaders/pery_crt_deluxe_blur.tres" type="Material" id=1]
-[ext_resource path="res://scenes/entities/EnemyShipSmall.tscn" type="PackedScene" id=2]
-[ext_resource path="res://scenes/entities/EnemyShipMedium.tscn" type="PackedScene" id=3]
 [ext_resource path="res://pery_crt_deluxe/shaders/pery_crt_deluxe.tres" type="Material" id=6]
 [ext_resource path="res://scenes/Game.tscn" type="PackedScene" id=7]
-[ext_resource path="res://scenes/entities/EnemyWasp.tscn" type="PackedScene" id=8]
 
 [sub_resource type="Environment" id=1]
 background_mode = 4
@@ -21,20 +18,6 @@ glow_bloom = 0.71
 glow_hdr_threshold = 0.27
 glow_high_quality = true
 
-[sub_resource type="Shader" id=2]
-code = "shader_type canvas_item;
-
-uniform float blink = 1.0;
-
-void fragment(){
-  COLOR = texture(TEXTURE, UV) * blink; //read from texture
-}"
-
-[sub_resource type="ShaderMaterial" id=3]
-resource_local_to_scene = true
-shader = SubResource( 2 )
-shader_param/blink = 1.0
-
 [node name="example" type="Node2D"]
 __meta__ = {
 "_editor_description_": ""
@@ -45,7 +28,6 @@ environment = SubResource( 1 )
 
 [node name="ViewportContainer" type="ViewportContainer" parent="."]
 material = ExtResource( 6 )
-anchor_right = 1.0
 margin_right = 384.0
 margin_bottom = 216.0
 rect_scale = Vector2( 1, 0.998377 )
@@ -62,23 +44,6 @@ render_target_update_mode = 3
 anchor_mode = 0
 rotating = true
 current = true
-smoothing_enabled = true
-
-[node name="EnemyWasp2" parent="ViewportContainer/Viewport" instance=ExtResource( 8 )]
-position = Vector2( 20, 20 )
-
-[node name="EnemyWasp" parent="ViewportContainer/Viewport" instance=ExtResource( 8 )]
-material = SubResource( 3 )
-position = Vector2( 117, 105 )
-
-[node name="EnemyShipSmall" parent="ViewportContainer/Viewport" instance=ExtResource( 2 )]
-position = Vector2( 182, 95 )
-
-[node name="EnemyShipSmall2" parent="ViewportContainer/Viewport" instance=ExtResource( 2 )]
-position = Vector2( 215, 112 )
-
-[node name="ShipMedium" parent="ViewportContainer/Viewport" instance=ExtResource( 3 )]
-position = Vector2( 266, 120 )
 
 [node name="Game" parent="ViewportContainer/Viewport" instance=ExtResource( 7 )]
 

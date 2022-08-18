@@ -28,6 +28,7 @@ audio_stream = ExtResource( 1 )
 random_pitch = 1.12
 
 [node name="Player" type="Area2D"]
+collision_mask = 34
 script = ExtResource( 3 )
 __meta__ = {
 "_edit_group_": true
