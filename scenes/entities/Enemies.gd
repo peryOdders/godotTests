@@ -39,7 +39,7 @@ func blink():
 	var t = $Tween
 	var m = $AnimatedSprite.get_material()
 	
-	t.interpolate_property(m,"shader_param/blink",1, 1, .1,Tween.TRANS_SINE, Tween.EASE_IN_OUT)
+	t.interpolate_property(m,"shader_param/blink",1 ,0, .4, Tween.TRANS_SINE, Tween.EASE_IN_OUT)
 	t.start()
 	yield(t, "tween_completed")
 	m.set_shader_param("blink", 0.0)

@@ -10,4 +10,5 @@ func spawn(id):
 
 	rng.randomize()
 	var x = rng.randf_range(0, 384.0)
-	enemy.position = position + Vector2(x,-80)
+	var y = rng.randf_range(-180, -40.0)
+	enemy.position = position + Vector2(x,y)

@@ -4,12 +4,14 @@ var current_time = 0.0
 var spawn_rate = 6.0
 
 func _ready():
-	spawn(0)
+	for n in 6:
+		spawn(0)
+	pass
 
 func _process(delta):
 	current_time += delta
-	if current_time > spawn_rate:
-		spawn(0)
+	#if current_time > spawn_rate:
+		#spawn(0)
 		
 func spawn(id):
 	$EnemiesSpawner.spawn(id)

@@ -1,82 +1,87 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://pery_crt_deluxe/shaders/pery_crt_deluxe_blur.tres" type="Material" id=1]
+[ext_resource path="res://pery_crt_deluxe/scripts/ScreenManager.gd" type="Script" id=2]
 [ext_resource path="res://pery_crt_deluxe/shaders/pery_crt_deluxe.tres" type="Material" id=6]
 [ext_resource path="res://scenes/Game.tscn" type="PackedScene" id=7]
 
 [sub_resource type="Environment" id=1]
 background_mode = 4
-tonemap_mode = 2
-dof_blur_near_amount = 0.2
 dof_blur_near_quality = 2
-glow_enabled = true
 glow_levels/1 = true
 glow_levels/5 = false
-glow_intensity = 2.36
+glow_intensity = 8.0
 glow_strength = 0.55
 glow_bloom = 0.71
 glow_hdr_threshold = 0.27
-glow_high_quality = true
 
 [node name="example" type="Node2D"]
 __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource( 1 )
-
-[node name="ViewportContainer" type="ViewportContainer" parent="."]
+[node name="CrtEffect" type="ViewportContainer" parent="."]
 material = ExtResource( 6 )
 margin_right = 384.0
 margin_bottom = 216.0
 rect_scale = Vector2( 1, 0.998377 )
 rect_clip_content = true
+script = ExtResource( 2 )
 
-[node name="Viewport" type="Viewport" parent="ViewportContainer"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="CrtEffect"]
+environment = SubResource( 1 )
+
+[node name="Viewport" type="Viewport" parent="CrtEffect"]
 size = Vector2( 384, 216 )
 handle_input_locally = false
 hdr = false
 usage = 0
 render_target_update_mode = 3
+gui_disable_input = true
 
-[node name="Camera2D" type="Camera2D" parent="ViewportContainer/Viewport"]
-anchor_mode = 0
-rotating = true
-current = true
+[node name="Game" parent="CrtEffect/Viewport" instance=ExtResource( 7 )]
 
-[node name="Game" parent="ViewportContainer/Viewport" instance=ExtResource( 7 )]
-
-[node name="Blur" type="ColorRect" parent="ViewportContainer/Viewport"]
-visible = false
+[node name="Blur" type="ColorRect" parent="CrtEffect/Viewport"]
 material = ExtResource( 1 )
 margin_right = 384.0
 margin_bottom = 216.0
 color = Color( 0, 0, 0, 1 )
 
-[node name="Panel" type="ColorRect" parent="ViewportContainer"]
-visible = false
+[node name="GUISettings" type="Control" parent="CrtEffect"]
 anchor_left = 0.1
 anchor_top = 0.1
 anchor_right = 0.9
 anchor_bottom = 0.9
-color = Color( 0.0470588, 0.054902, 0.133333, 0.92549 )
+margin_right = -3.05176e-05
 
-[node name="ToolButton" type="ToolButton" parent="ViewportContainer/Panel"]
-margin_right = 12.0
-margin_bottom = 22.0
+[node name="Panel" type="Panel" parent="CrtEffect/GUISettings"]
+margin_right = 191.0
+margin_bottom = 345.0
+rect_scale = Vector2( 0.5, 0.5 )
+size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="ViewportContainer/Panel"]
-margin_right = 40.0
-margin_bottom = 14.0
-rect_scale = Vector2( 0.28, 0.32 )
-text = "Settings
+[node name="CheckButtonEnableCRT" type="CheckButton" parent="CrtEffect/GUISettings/Panel"]
+margin_right = 189.0
+margin_bottom = 40.0
+pressed = true
+text = "Enabled CRT"
 
- F1 - help
- F12 - toggle PP"
+[node name="CheckButtonEnableBlur" type="CheckButton" parent="CrtEffect/GUISettings/Panel"]
+margin_left = -0.800003
+margin_top = 38.9333
+margin_right = 188.2
+margin_bottom = 78.9333
+pressed = true
+text = "Enabled Blur"
 
-[node name="Button" type="Button" parent="ViewportContainer/Panel"]
-margin_left = 25.0
-margin_top = 25.0
-margin_right = 37.0
-margin_bottom = 45.0
+[node name="HSlider" type="HSlider" parent="CrtEffect/GUISettings/Panel"]
+margin_left = 9.0
+margin_top = 77.0
+margin_right = 174.0
+margin_bottom = 123.0
+max_value = 2.0
+step = 0.1
+
+[connection signal="toggled" from="CrtEffect/GUISettings/Panel/CheckButtonEnableCRT" to="CrtEffect" method="_on_CheckButtonEnableCRT_toggled"]
+[connection signal="toggled" from="CrtEffect/GUISettings/Panel/CheckButtonEnableBlur" to="CrtEffect" method="_on_CheckButtonEnableBlur_toggled"]
+[connection signal="value_changed" from="CrtEffect/GUISettings/Panel/HSlider" to="CrtEffect" method="_on_HSlider_value_changed"]
