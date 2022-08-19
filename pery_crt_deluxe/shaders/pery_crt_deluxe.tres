@@ -1,4 +1,6 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+[gd_resource type="ShaderMaterial" load_steps=3 format=2]
+
+[ext_resource path="res://art/Grille_1.png" type="Texture" id=1]
 
 [sub_resource type="Shader" id=1]
 code = "/*
@@ -18,6 +20,8 @@ code = "/*
 
 shader_type canvas_item;
 render_mode blend_mix;
+
+uniform sampler2D grille;
 
 uniform bool enabled = true;
 
@@ -473,9 +477,12 @@ void fragment() {
 	outColor += bloom * bloomAmount;
 	
 	outColor = applyHSBEffect(outColor.rgb);
-	
+	/*
 	if (shadowMask > 0.0)
 	    outColor *= Mask( FRAGCOORD.xy * 1.000001);
+		
+	*/
+		outColor *= texture(grille, UV*384.0).rgb;
 		
 	/* Flicker */
 	outColor *= (1.0 - flicker * 0.2 * (sin(50.0*TIME+xy.y*2.0)*0.5+0.5));
@@ -502,7 +509,7 @@ shader = SubResource( 1 )
 shader_param/enabled = true
 shader_param/useCurvature = true
 shader_param/curvatureDistance = 1.6
-shader_param/barrelPower = 0.0
+shader_param/barrelPower = 1.6
 shader_param/curvatureRadius = 2.0
 shader_param/cornersize = 0.03
 shader_param/cornersmooth = 100.0
@@ -513,12 +520,12 @@ shader_param/overscan_y = 100.0
 shader_param/border_color = Color( 0.207843, 0.207843, 0.207843, 1 )
 shader_param/vignetteIntensity = 0.25
 shader_param/vignetteOpacity = 1.0
-shader_param/hardScan = -8.0
+shader_param/hardScan = -12.0
 shader_param/hardPix = -3.0
 shader_param/maskDark = 0.5
 shader_param/maskLight = 1.5
 shader_param/shadowMask = 2.0
-shader_param/brightBoost = 1.0
+shader_param/brightBoost = 2.0
 shader_param/hardBloomPix = -1.5
 shader_param/hardBloomScan = -2.0
 shader_param/bloomAmount = 0.15
@@ -527,8 +534,9 @@ shader_param/hue = 0.0
 shader_param/saturation = 1.0
 shader_param/brightness = 1.0
 shader_param/contrast = 1.0
-shader_param/distortion = 0.0
+shader_param/distortion = 0.001
 shader_param/flicker = 0.21
 shader_param/noiseAmount = 0.07
 shader_param/noiseSize = 0.21
 shader_param/TextureSize = Vector2( 384, 216 )
+shader_param/grille = ExtResource( 1 )

@@ -1,7 +1,9 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://pery_crt_deluxe/shaders/pery_crt_deluxe_blur.tres" type="Material" id=1]
 [ext_resource path="res://pery_crt_deluxe/scripts/ScreenManager.gd" type="Script" id=2]
+[ext_resource path="res://tests/FFiYSNJXsAY8Ou-.png" type="Texture" id=3]
+[ext_resource path="res://tests/FX9K3ZhWYAIuBl6.jpg" type="Texture" id=4]
 [ext_resource path="res://pery_crt_deluxe/shaders/pery_crt_deluxe.tres" type="Material" id=6]
 [ext_resource path="res://scenes/Game.tscn" type="PackedScene" id=7]
 
@@ -10,7 +12,7 @@ background_mode = 4
 dof_blur_near_quality = 2
 glow_levels/1 = true
 glow_levels/5 = false
-glow_intensity = 8.0
+glow_intensity = 3.7
 glow_strength = 0.55
 glow_bloom = 0.71
 glow_hdr_threshold = 0.27
@@ -39,6 +41,16 @@ usage = 0
 render_target_update_mode = 3
 gui_disable_input = true
 
+[node name="FfiYsnjxsAy8Ou-" type="Sprite" parent="CrtEffect/Viewport"]
+position = Vector2( 69, 100 )
+scale = Vector2( 0.1, 0.1 )
+texture = ExtResource( 3 )
+
+[node name="Fx9K3ZhWyaiuBl6" type="Sprite" parent="CrtEffect/Viewport"]
+position = Vector2( 79, 120 )
+scale = Vector2( 0.05, 0.05 )
+texture = ExtResource( 4 )
+
 [node name="Game" parent="CrtEffect/Viewport" instance=ExtResource( 7 )]
 
 [node name="Blur" type="ColorRect" parent="CrtEffect/Viewport"]
@@ -48,6 +60,7 @@ margin_bottom = 216.0
 color = Color( 0, 0, 0, 1 )
 
 [node name="GUISettings" type="Control" parent="CrtEffect"]
+visible = false
 anchor_left = 0.1
 anchor_top = 0.1
 anchor_right = 0.9
