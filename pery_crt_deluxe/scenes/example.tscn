@@ -42,8 +42,8 @@ render_target_update_mode = 3
 gui_disable_input = true
 
 [node name="FfiYsnjxsAy8Ou-" type="Sprite" parent="CrtEffect/Viewport"]
-position = Vector2( 69, 100 )
-scale = Vector2( 0.1, 0.1 )
+position = Vector2( 150.076, 100 )
+scale = Vector2( 0.03, 0.03 )
 texture = ExtResource( 3 )
 
 [node name="Fx9K3ZhWyaiuBl6" type="Sprite" parent="CrtEffect/Viewport"]

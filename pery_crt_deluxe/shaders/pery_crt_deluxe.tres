@@ -87,7 +87,7 @@ uniform float noiseSize: hint_range(0.0, 1.0, 0.01) = 0.001;
 
 
 uniform vec2 TextureSize;
-
+uniform float GrilleSize: hint_range(0.1, 0.4, 0.01) = 0.2;
 varying vec2 overscan;
 varying vec2 aspect;
 varying vec3 stretch;
@@ -477,12 +477,12 @@ void fragment() {
 	outColor += bloom * bloomAmount;
 	
 	outColor = applyHSBEffect(outColor.rgb);
-	/*
+	
 	if (shadowMask > 0.0)
-	    outColor *= Mask( FRAGCOORD.xy * 1.000001);
-		
-	*/
-		outColor *= texture(grille, UV*384.0).rgb;
+	    outColor *= Mask( FRAGCOORD.xy * 1.00001);
+	else
+		outColor *= texture(grille, UV * (1.0/SCREEN_PIXEL_SIZE) * GrilleSize).rgb;
+		//outColor *= texture(grille, UV * TextureSize * GrilleSize).rgb;
 		
 	/* Flicker */
 	outColor *= (1.0 - flicker * 0.2 * (sin(50.0*TIME+xy.y*2.0)*0.5+0.5));
@@ -498,9 +498,6 @@ void fragment() {
 		COLOR = mix (border , vec4(ToSrgb(outColor.rgb), 1.0), cval); 
 	else
 		COLOR = texture(TEXTURE, UV);
-	
-	//COLOR = blur(TEXTURE,UV);
-		
 } "
 
 [resource]
@@ -520,23 +517,24 @@ shader_param/overscan_y = 100.0
 shader_param/border_color = Color( 0.207843, 0.207843, 0.207843, 1 )
 shader_param/vignetteIntensity = 0.25
 shader_param/vignetteOpacity = 1.0
-shader_param/hardScan = -12.0
+shader_param/hardScan = -9.0
 shader_param/hardPix = -3.0
 shader_param/maskDark = 0.5
 shader_param/maskLight = 1.5
-shader_param/shadowMask = 2.0
+shader_param/shadowMask = 0.0
 shader_param/brightBoost = 2.0
-shader_param/hardBloomPix = -1.5
+shader_param/hardBloomPix = -0.7
 shader_param/hardBloomScan = -2.0
-shader_param/bloomAmount = 0.15
-shader_param/shape = 2.0
+shader_param/bloomAmount = 1.0
+shader_param/shape = 3.6
 shader_param/hue = 0.0
 shader_param/saturation = 1.0
 shader_param/brightness = 1.0
 shader_param/contrast = 1.0
-shader_param/distortion = 0.001
-shader_param/flicker = 0.21
-shader_param/noiseAmount = 0.07
+shader_param/distortion = 0.04
+shader_param/flicker = 0.06
+shader_param/noiseAmount = 0.12
 shader_param/noiseSize = 0.21
 shader_param/TextureSize = Vector2( 384, 216 )
+shader_param/GrilleSize = 0.2
 shader_param/grille = ExtResource( 1 )
