@@ -501,7 +501,6 @@ void fragment() {
 } "
 
 [resource]
-resource_local_to_scene = true
 shader = SubResource( 1 )
 shader_param/enabled = true
 shader_param/useCurvature = true
@@ -521,8 +520,8 @@ shader_param/hardScan = -9.0
 shader_param/hardPix = -3.0
 shader_param/maskDark = 0.5
 shader_param/maskLight = 1.5
-shader_param/shadowMask = 0.0
-shader_param/brightBoost = 2.0
+shader_param/shadowMask = 1.0
+shader_param/brightBoost = 1.0
 shader_param/hardBloomPix = -0.7
 shader_param/hardBloomScan = -2.0
 shader_param/bloomAmount = 1.0
@@ -532,9 +531,9 @@ shader_param/saturation = 1.0
 shader_param/brightness = 1.0
 shader_param/contrast = 1.0
 shader_param/distortion = 0.04
-shader_param/flicker = 0.06
-shader_param/noiseAmount = 0.12
-shader_param/noiseSize = 0.21
+shader_param/flicker = 0.28
+shader_param/noiseAmount = 0.0
+shader_param/noiseSize = 0.25
 shader_param/TextureSize = Vector2( 384, 216 )
-shader_param/GrilleSize = 0.2
+shader_param/GrilleSize = 0.32
 shader_param/grille = ExtResource( 1 )
