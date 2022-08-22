@@ -2,19 +2,19 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/Layer-5.png-677a8e35b14b4becef4892f4e7b3269b.stex"
+path="res://.import/adventurer-run-04.png-a59e2e8f7ebb01c6583024b7c7599925.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/Sideview Sci-Fi - Patreon Collection/Sprites/cyberpunk-detective/PNG/sprites/crouch/Layer-5.png"
-dest_files=[ "res://.import/Layer-5.png-677a8e35b14b4becef4892f4e7b3269b.stex" ]
+source_file="res://Sprites/Player/RUN/adventurer-run-04.png"
+dest_files=[ "res://.import/adventurer-run-04.png-a59e2e8f7ebb01c6583024b7c7599925.stex" ]
 
 [params]
 
-compress/mode=3
+compress/mode=0
 compress/lossy_quality=0.7
 compress/hdr_mode=0
 compress/bptc_ldr=0
@@ -31,5 +31,5 @@ process/invert_color=false
 process/normal_map_invert_y=false
 stream=false
 size_limit=0
-detect_3d=true
+detect_3d=false
 svg/scale=1.0

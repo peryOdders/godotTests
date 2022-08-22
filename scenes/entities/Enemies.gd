@@ -50,7 +50,7 @@ func blink():
 	if life <  1:
 		delete()
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	
 	var collisionL = $RayCast2DL.is_colliding()
 	var collisionR = $RayCast2DR.is_colliding()
