@@ -5,12 +5,12 @@ export var acceleration = 1000
 export var deacceleration = 1000
 export var friction = 1000
 export var current_friction = 1000
-export var max_horizontal_speed = 200
+export var max_horizontal_speed_walking = 100
+export var max_horizontal_speed_runing = 200
 export var max_fall_speed = 500
 export var jump_height = -400
 export var double_jump_height = -300
 
-export var squash_speed = 0.1
 
 var vSpeed = 0
 var hSpeed = 0
@@ -51,7 +51,7 @@ func check_ground_logic():
 		coyote_time = false
 	#check the m oment we touch ground for first time
 	if(!touching_ground and ground_ray.is_colliding()):
-		ani.scale = Vector2(1.2,0.8)
+		pass
 	#Set if if we're touching ground or note
 	touching_ground = ground_ray.is_colliding()
 	if(touching_ground):
@@ -77,7 +77,6 @@ func handle_jumping(var _delta):
 			vSpeed = jump_height
 			is_jumping = true
 			touching_ground = false
-			ani.scale = Vector2(0.5,1.2)
 	else:
 		#Do variable jump logic
 		if(vSpeed < 0 and !Input.is_action_pressed("shot") and !is_double_jumping):
@@ -102,17 +101,23 @@ func handle_jumping(var _delta):
 	pass
 	
 func handle_movement(var delta):
+	var max_horizontal_speed_and_turbo = max_horizontal_speed_walking
+	if Input.is_action_pressed("move_fast"):
+		max_horizontal_speed_and_turbo = max_horizontal_speed_runing
+
 	#controller right/keyboard right
 	if(Input.get_joy_axis(0,0) > 0.3 or Input.is_action_pressed("move_right")):
 		if(hSpeed <-100):
 			hSpeed += (deacceleration * delta)
 			if(touching_ground):
 				ani.play("TURN")
-		elif(hSpeed < max_horizontal_speed):
+		elif(hSpeed < max_horizontal_speed_and_turbo):
 			hSpeed += (acceleration * delta)
 			ani.flip_h = false
 			if(touching_ground):
 				ani.play("RUN")
+		elif(hSpeed > max_horizontal_speed_and_turbo):
+			hSpeed -= (deacceleration * delta)
 		else:
 			if(touching_ground):
 				ani.play("RUN")
@@ -121,11 +126,13 @@ func handle_movement(var delta):
 			hSpeed -= (deacceleration * delta)
 			if(touching_ground):
 				ani.play("TURN")
-		elif(hSpeed > -max_horizontal_speed):
+		elif(hSpeed > -max_horizontal_speed_and_turbo):
 			hSpeed -= (acceleration * delta)
 			ani.flip_h = true
 			if(touching_ground):
 				ani.play("RUN")
+		elif(hSpeed < -max_horizontal_speed_and_turbo):
+			hSpeed += (deacceleration * delta)
 		else:
 			if(touching_ground):
 				ani.play("RUN")
@@ -150,11 +157,6 @@ func do_physics(var delta):
 	
 	#apply our motion vectgor to move and slide
 	motion = move_and_slide(motion,UP)
-	
-	#lerp out squash/squeeze scale
-	apply_squash_squeeze()
+
 	pass
 	
-func apply_squash_squeeze():
-	ani.scale.x = lerp(ani.scale.x,1,squash_speed)
-	ani.scale.y = lerp(ani.scale.y,1,squash_speed)
