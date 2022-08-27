@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://pery_crt_deluxe/shaders/pery_crt_deluxe_blur.tres" type="Material" id=1]
 [ext_resource path="res://pery_crt_deluxe/scripts/ScreenManager.gd" type="Script" id=2]
+[ext_resource path="res://light.png" type="Texture" id=3]
 [ext_resource path="res://pery_crt_deluxe/shaders/pery_crt_deluxe.tres" type="Material" id=6]
 [ext_resource path="res://map.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Objects/Player.tscn" type="PackedScene" id=10]
@@ -14,10 +15,10 @@ glow_enabled = true
 glow_levels/1 = true
 glow_levels/2 = true
 glow_levels/4 = true
-glow_intensity = 0.65
+glow_intensity = 0.1
+glow_bloom = 0.1
 glow_blend_mode = 0
 glow_hdr_threshold = 1.5
-glow_bicubic_upscale = true
 
 [node name="example" type="Node2D"]
 __meta__ = {
@@ -25,23 +26,44 @@ __meta__ = {
 }
 
 [node name="CrtEffect" type="ViewportContainer" parent="."]
+light_mask = 0
 material = ExtResource( 6 )
-margin_right = 384.0
-margin_bottom = 216.0
-rect_scale = Vector2( 1, 0.998377 )
+margin_right = 3840.0
+margin_bottom = 2160.0
 rect_clip_content = true
 script = ExtResource( 2 )
+
+[node name="Camera2D" type="Camera2D" parent="CrtEffect"]
+position = Vector2( 16, 6.00976 )
+scale = Vector2( 1, 1.00163 )
+offset = Vector2( 0, -8.12 )
+anchor_mode = 0
+current = true
+limit_left = 0
+limit_top = 0
+limit_right = 384
+limit_bottom = 216
+limit_smoothed = true
+smoothing_enabled = true
 
 [node name="Viewport" type="Viewport" parent="CrtEffect"]
 size = Vector2( 384, 216 )
 handle_input_locally = false
+disable_3d = true
 render_target_update_mode = 3
 gui_disable_input = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="CrtEffect/Viewport"]
 environment = SubResource( 1 )
 
+[node name="Map" parent="CrtEffect/Viewport" instance=ExtResource( 7 )]
+
+[node name="ColorRect" parent="CrtEffect/Viewport/Map" index="0"]
+margin_right = 3840.0
+margin_bottom = 2160.0
+
 [node name="Background" type="ColorRect" parent="CrtEffect/Viewport"]
+visible = false
 margin_right = 384.0
 margin_bottom = 216.0
 color = Color( 0.0784314, 0.0823529, 0.0862745, 1 )
@@ -98,14 +120,33 @@ margin_right = 171.0
 margin_bottom = 18.0
 color = Color( 8.02745, 0.501961, 0.101961, 1 )
 
-[node name="Map" parent="CrtEffect/Viewport" instance=ExtResource( 7 )]
+[node name="Light2D" type="Light2D" parent="CrtEffect/Viewport"]
+position = Vector2( 340, 56 )
+scale = Vector2( 0.167969, 0.185059 )
+texture = ExtResource( 3 )
+color = Color( 1, 0.478431, 0.219608, 1 )
+energy = 1.62
+shadow_enabled = true
+shadow_color = Color( 0.945098, 1, 0, 0 )
+shadow_gradient_length = 6.0
+shadow_filter = 4
+shadow_filter_smooth = 5.0
 
 [node name="Player" parent="CrtEffect/Viewport" instance=ExtResource( 10 )]
-position = Vector2( 199, 80 )
+position = Vector2( 199, 80.537 )
 acceleration = 500
 deacceleration = 50
 max_fall_speed = 300
 jump_height = -250
+
+[node name="Camera2D" parent="CrtEffect/Viewport/Player" index="4"]
+current = false
+process_mode = 0
+limit_top = 32
+smoothing_speed = 3.0
+editor_draw_screen = false
+editor_draw_limits = false
+editor_draw_drag_margin = false
 
 [node name="Blur" type="ColorRect" parent="CrtEffect/Viewport"]
 material = ExtResource( 1 )
@@ -152,3 +193,6 @@ step = 0.1
 [connection signal="toggled" from="CrtEffect/GUISettings/Panel/CheckButtonEnableCRT" to="CrtEffect" method="_on_CheckButtonEnableCRT_toggled"]
 [connection signal="toggled" from="CrtEffect/GUISettings/Panel/CheckButtonEnableBlur" to="CrtEffect" method="_on_CheckButtonEnableBlur_toggled"]
 [connection signal="value_changed" from="CrtEffect/GUISettings/Panel/HSlider" to="CrtEffect" method="_on_HSlider_value_changed"]
+
+[editable path="CrtEffect/Viewport/Map"]
+[editable path="CrtEffect/Viewport/Player"]
